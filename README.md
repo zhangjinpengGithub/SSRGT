@@ -13,7 +13,7 @@ SSRGT is a software used to genotype and SSR calling across a hybrid population 
 5. Generating input format files for the genetic mapping software JoinMap and FsLinkageMap.
 
 # Usage
-To run SSRGT, users should install the two prerequisite packages: [BWA-men2](https://github.com/bwa-mem2/bwamem2) and [SAMtools](http://samtools.sourceforge.net/).  Furthermore, an additional setting file parameter is required, namely `parameters.ini`. The parameter file contains three parts, i.e., folders, data files and parameter. As the first part, 'folders' gives the BWA-men2 and SAMtools paths to use to run SSRGT software. In addition, 'SCRIPT' provides a built-in script storage path and, 'PROGENY' provides a path to the progeny resequencing data. The second part 'data files' includes the reference genome file path and the two parents sequencing data files. In addition, ' PROGENY_ID ' provides the first read files and the second read files for all progeny. The third part 'parameter' includes the specified mapping quality (MAPQ) threshold, the number of threads used for parallel computing, the threshold for the frequency of a genotype considered to be a homozygotes genotype or a heterozygous genotype, the threshold for the sum of all reads for an allele, the percent of the maximum missing genotypes at an SSR locus and the minimum p-value allowed for testing the segregation ratio of an SSR locus. A typical parameter file looks as following:
+To run SSRGT, users should install the two prerequisite packages: [BWA-men2](https://github.com/bwa-mem2/bwa-mem2) and [SAMtools](http://samtools.sourceforge.net/).  Furthermore, an additional setting file parameter is required, namely `parameters.ini`. The parameter file contains three parts, i.e., folders, data files and parameter. As the first part, 'folders' gives the BWA-men2 and SAMtools paths to use to run SSRGT software. In addition, 'SCRIPT' provides a built-in script storage path and, 'PROGENY' provides a path to the progeny resequencing data. The second part 'data files' includes the reference genome file path and the two parents sequencing data files. In addition, ' PROGENY_ID ' provides the first read files and the second read files for all progeny. The third part 'parameter' includes the specified mapping quality (MAPQ) threshold, the number of threads used for parallel computing, the threshold for the frequency of a genotype considered to be a homozygotes genotype or a heterozygous genotype, the threshold for the sum of all reads for an allele, the percent of the maximum missing genotypes at an SSR locus and the minimum p-value allowed for testing the segregation ratio of an SSR locus. A typical parameter file looks as following:
 
         [folders]  
     	BWA:/mnt/sda/tong/yuyingxuan/software/bwa-mem2/bwa-mem2
@@ -54,13 +54,18 @@ sample20        sample20.R1.fq  sample20.R2.fq
 Additionally, users need to install python modules in python 3 environment, including [pandas](https://github.com/pandas-dev/pandas) and [xlwt](https://github.com/python-excel/xlwt).
 
   When the required software packages are installed and the parameter file is parepared and saved in a work directory, you can go to the work directory and get started with the command:  
-  `python SSRGT.py
-  If you want to change the reference sequence motif threshold for SSR genotype calling, you can run the command in background as :python SSRGT.py -mo 1=10,2=6,3=5,4=5,5=5,6=4  `
+ ```
+ python SSRGT.py
+ 
+ If you want to change the reference sequence motif threshold for SSR genotype calling, you can run the command in background as :
+  
+ python SSRGT.py -mo 1=10,2=6,3=5,4=5,5=5,6=4  `
+ ```
 
-`
-  Since it will take quite a few hours or even several days to finish a pratical computing, we usually run the command in background as  
-  ``nohup python SSRGT &`
-
+ Since it will take quite a few hours or even several days to finish a pratical computing, we usually run the command in background as  
+```
+  nohup python SSRGT &
+```
 
 
   You can run with the 'help' option (`pthon SSRGT.py -h`) to show the usage of SSRGT:
@@ -85,8 +90,8 @@ After the program has finished running, if the user wants to locate the SSR loci
 ```
 usage: python SSRlocation.py [-h] -g GFF -s SSR_TYPES -t THREADS  -o OUT
 
-Example: python SSRlocation.py -g ../p.gff3 -s ../WorkingDirectory/femaleallSSR_type.txt -t 2 
--o female.location
+Example: python SSRlocation.py -g ../p.gff3 -s ../WorkingDirectory/femaleallSSR_type.txt 
+-t 2 -o female.location
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -96,7 +101,6 @@ optional arguments:
   -t THREADS, --threads THREADS
                         Please input threads
   -o OUT, --out OUT     Please input out_put file_name
-
 
 ```
 
