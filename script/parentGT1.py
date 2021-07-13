@@ -152,7 +152,7 @@ def SSRprint(motif_str,gene,motif_repeat,motif):
                         first=float(my_dtct.split(",")[1])
                         second=float(my_dtct.split(",")[3])
                         mydtct2=my_dtct.split(",")[2].lstrip()
-                        if(first/order_len>=major_allele and second/order_len>=heterozygotes and int(first)>2 and int(second)>2 and first>second ):
+                        if(first/order_len>=major_allele and second/order_len>=heterozygotes and int(first)>2 and int(second)>2):
                             myout=gene_rep+'\t'+motif_str+'('+str(motif_repeat)+')'+'\t'+str(len1)+'\t'+mydtct0+'/'+mydtct2+'\t'+'ab'
                             with open(out,"a+") as f2:
                                 f2.write(myout+"\n")

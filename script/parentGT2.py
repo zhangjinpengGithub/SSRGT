@@ -136,7 +136,7 @@ def GMSSR(gene,motif,motif2,refmotif):
                             myout=gene_rep+'\t'+mydtct0+'/'+mydtct0+'\t'+'cc'
                             with open(out,"a+") as f2:
                                 f2.write(myout+"\n")
-                    elif(first/order_len>=major_allele and second/order_len>=heterozygotes and int(first)>2 and int(second)>2 and first>second):
+                    elif(first/order_len>=major_allele and second/order_len>=heterozygotes and int(first)>2 and int(second)>2):
                         if((mydtct0==motif and mydtct2==motif2 )or (mydtct2==motif and mydtct0==motif2)):
                             myout=gene_rep+'\t'+mydtct0+'/'+mydtct2+'\t'+'ab'
                             with open(out,"a+") as f2:
