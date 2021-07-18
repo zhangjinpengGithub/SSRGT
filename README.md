@@ -33,7 +33,7 @@ To run SSRGT, users should install the two prerequisite packages: [BWA-men2](htt
     	MAPQ:40
     	THREADS:10
     	Frequency_Of_Homozygotes:0.7
-    	Frequency_Of_Heterozygotes:0.3
+    	Sum_of_the_frequency_of_major_and_minor_allele:0.7
     	Depth_Of_Coverage:10
     	PVALUE: 0.01
     	MISS_GENOTYPES:0.3
