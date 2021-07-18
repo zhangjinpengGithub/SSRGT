@@ -32,10 +32,9 @@ samtools=cfg.get("folders","SAMTOOLS")
 thread=cfg.getint("parameter","THREADS")
 Depth_Of_Coverage=cfg.getint("parameter","Depth_Of_Coverage")
 homozygotes=cfg.get("parameter","Frequency_of_Homozygotes")
-heterozygotes=cfg.get("parameter","Frequency_of_Heterozygotes")
+heterozygotes=cfg.get("parameter","Sum_of_the_frequency_of_major_and_minor_allele")
 homozygotes=float(homozygotes)
 heterozygotes=float(heterozygotes)
-major_allele=heterozygotes
 
 with open(x,'r') as f:
     next(f)

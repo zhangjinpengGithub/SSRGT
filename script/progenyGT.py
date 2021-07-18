@@ -15,10 +15,9 @@ samtools=cfg.get("folders","SAMTOOLS")
 thread=cfg.getint("parameter","THREADS")
 Depth_Of_Coverage=cfg.getint("parameter","Depth_Of_Coverage")
 homozygotes=cfg.get("parameter","Frequency_Of_Homozygotes")
-heterozygotes=cfg.get("parameter","Frequency_Of_Heterozygotes")
+heterozygotes=cfg.get("parameter","Sum_of_the_frequency_of_major_and_minor_allele")
 homozygotes=float(homozygotes)
 heterozygotes=float(heterozygotes)
-major_allele=heterozygotes
 def run_command(cmd):
     print(cmd)
     return_code = subprocess.call(cmd, shell=True)
