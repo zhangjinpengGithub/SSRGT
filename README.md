@@ -31,7 +31,7 @@ To run SSRGT, users should install the two prerequisite packages: [BWA-men2](htt
         MAPQ:35
         THREADS:30
         Depth_Of_Coverage:5
-        Alleles quality score:0.8
+        Alleles quality score:0.9
         Stutter:0.05
         PVALUE: 0.01
         MISS_GENOTYPES:0.4
