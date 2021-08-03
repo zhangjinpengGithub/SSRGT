@@ -16,17 +16,17 @@ SSRGT is a software used to genotype and SSR calling across a hybrid population 
 To run SSRGT, users should install the two prerequisite packages: [BWA-men2](https://github.com/bwa-mem2/bwa-mem2), [GangSTR](https://github.com/gymreklab/GangSTR)  and [SAMtools](http://samtools.sourceforge.net/).  Furthermore, an additional setting file parameter is required, namely `parameters.ini`. The parameter file contains three parts, i.e., folders, data files, parameter and progeny fastq files. As the first part, 'folders' gives the BWA-men2, GangSTR and SAMtools paths to use to run SSRGT software. In addition, 'SCRIPT' provides a built-in script storage path and, 'PROGENY' provides a path to the progeny resequencing data. The second part 'data files' includes the reference genome file path and the two parents sequencing data files. The third part 'parameter' includes the specified mapping quality (MAPQ) threshold, the number of threads used for parallel computing, the read depth of each genotype call, the quality score of estimated alleles.the percent of the maximum missing genotypes at an SSR locus and the minimum p-value allowed for testing the segregation ratio of an SSR locus.Finally,the 'progeny fastq files' includes the name of the progeny and the first read files and the second read files.  A typical parameter file looks as following:
 
         [folders]  
-    	BWA:/mnt/sda/tong/yuyingxuan/software/bwa-mem2/bwa-mem2
-    	SAMTOOLS:/mnt/sda/tong/yuyingxuan/software/samtools-1.9/samtools
-    	SCRIPT:/mnt/sda/tong/yuyingxuan/zjp/SSRGT/script
-    	PROGENY:/mnt/sda/tong/yuyingxuan/zjp/SSRGT
+        BWA:/mnt/sda/tong/yuyingxuan/software/bwa-mem2/bwa-mem2
+        SAMTOOLS:/mnt/sda/tong/yuyingxuan/software/samtools-1.9/samtools
+        SCRIPT:/mnt/sda/tong/yuyingxuan/zjp/SSRGT/script
+        PROGENY:/mnt/sda/tong/yuyingxuan/zjp/SSRGT
         GangSTR:/mnt/sda/tong/yuyingxuan/miniconda3/envs/python3/bin/GangSTR
         [data files]  
-    	REFERENCE_GENOME:/mnt/sda/tong/yuyingxuan/zjp/SSRGT/p.ref
-    	MALEPARENT_1:/mnt/sda/tong/yuyingxuan/zjp/SSRGT/male.R1.fq
-    	MALEPARENT_2:/mnt/sda/tong/yuyingxuan/zjp/SSRGT/male.R2.fq
-    	FEMALEPARENT_1:/mnt/sda/tong/yuyingxuan/zjp/SSRGT/female.R1.fq
-    	FEMALEPARENT_2:/mnt/sda/tong/yuyingxuan/zjp/SSRGT/female.R2.fq
+        REFERENCE_GENOME:/mnt/sda/tong/yuyingxuan/zjp/SSRGT/p.ref
+        MALEPARENT_1:/mnt/sda/tong/yuyingxuan/zjp/SSRGT/male.R1.fq
+        MALEPARENT_2:/mnt/sda/tong/yuyingxuan/zjp/SSRGT/male.R2.fq
+        FEMALEPARENT_1:/mnt/sda/tong/yuyingxuan/zjp/SSRGT/female.R1.fq
+        FEMALEPARENT_2:/mnt/sda/tong/yuyingxuan/zjp/SSRGT/female.R2.fq
         [parameter]  
         MAPQ:35
         THREADS:30
