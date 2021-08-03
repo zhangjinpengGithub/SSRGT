@@ -696,7 +696,7 @@ def abxcc_map(z):
                         list2[i][7+j]='lm'
                     else:
                         list2[i][7+j]='--'
-                list2[i][3]='(lm,ll)'
+                list2[i][3]='(ll,lm)'
             df1=pd.DataFrame(list2)
             list3 = []
             get_proganyID(list3,progenyID)
