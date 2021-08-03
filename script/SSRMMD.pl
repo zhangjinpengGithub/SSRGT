@@ -40,8 +40,8 @@ my $fasta1_name = '';
 my $fasta2_name = '';
 my $miningMethod = 0; #0 or 1
 #my $motifs = '1=10,2=7,3=6,4=5,5=4,6=4';
-my $motifs = '1=8,2=5,3=4,4=4,5=4,6=4';
-my $minSsrLen = 8;  #10
+my $motifs = '1=9,2=5,3=4,4=4,5=4,6=4';
+my $minSsrLen = 9;  #10
 my $maxSsrLen = 10000;
 my $fs_len = 100;
 my $stat_file = 0; #0 or 1
