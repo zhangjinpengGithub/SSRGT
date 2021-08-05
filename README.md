@@ -34,7 +34,7 @@ To run SSRGT, users should install the two prerequisite packages: [BWA-men2](htt
         Alleles quality score:0.9
         Stutter:0.05
         PVALUE: 0.01
-        MISS_GENOTYPES:0.4
+        MISS_GENOTYPES:0.3
         [progeny fastq files]
         sample01:sample01.R1.fq sample01.R2.fq
         sample02:sample02.R1.fq sample02.R2.fq
