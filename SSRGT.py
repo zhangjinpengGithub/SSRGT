@@ -1134,7 +1134,7 @@ Usage: python SSRGT.py  [Options]
 	parser.add_argument(
 		'-wgs', '--WGS', 
 		default='False',
-		help="set the sequencing data type, default : False \nIf your sequencing data is RAD-seq or WES data, you should choose '-wgs False', if it's whole genome sequencing, choose '-wgs True'")
+		help="set the sequencing data type, default : False \nIf your sequencing data is RAD-seq or GBS data, you should choose '-wgs False', if it's whole genome sequencing, choose '-wgs True'")
 	args = parser.parse_args()
 	filename='./parameters.ini'
 	if(os.path.isfile(filename)==False):
