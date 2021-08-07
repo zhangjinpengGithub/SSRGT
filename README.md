@@ -81,7 +81,7 @@ Additionally, users need to install python modules in python 3 environment, incl
                             left  of equal : length of motif
                             right of equal : the minimum number of repeat
       -wgs WGS, --WGS WGS   set the sequencing data type, default : False
-                            If your sequencing data is RAD-seq or WES data, you should choose '-wgs False', if it's whole genome sequencing, choose '-wgs True'
+                            If your sequencing data is RAD-seq or GBS data, you should choose '-wgs False', if it's whole genome sequencing, choose '-wgs True'
 
 After the program has finished running, if the user wants to locate the SSR loci by reference genome，they can use the following command  in the 'script' folder. This step will facilitate functional annotation (e.g., GO, KEGG, Pfam) studies of genes containing SSRs.
 
