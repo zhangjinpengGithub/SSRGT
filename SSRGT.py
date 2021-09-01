@@ -20,23 +20,20 @@ Stutter=cfg.get("parameter","Stutter")
 MAPQ=cfg.getint("parameter","MAPQ")
 pvalue=cfg.get("parameter","PVALUE")
 MISPCT=cfg.get("parameter","MISS_GENOTYPES")
-GENOME=cfg.get("data files","REFERENCE_GENOME")
+GENOME=cfg.get("folders","REFERENCE GENOME")
 progenyfold=cfg.get("folders","PROGENY")
+parentfold=cfg.get("folders","PARENT")
 script=cfg.get("folders","SCRIPT")
 SSRMMD=script+'/SSRMMD.pl'
-PICARD=script+'/picard-tools-1.119'
-DP=cfg.get("parameter","Depth_Of_Coverage")
+PICARD=script+'/picard.jar'
+DP=cfg.get("parameter","Depth Of Coverage")
 Alleles_Quality=cfg.get("parameter","Alleles quality score")
 DP=int(DP)
 Alleles_Quality=float(Alleles_Quality)
-male1=cfg.get("data files","MALEPARENT_1")
-male2=cfg.get("data files","MALEPARENT_2")
-female1=cfg.get("data files","FEMALEPARENT_1")
-female2=cfg.get("data files","FEMALEPARENT_2")
 ###########################################################################################################
 
 def run_command(cmd):
-	print(cmd)
+#	print(cmd)
 	return_code = subprocess.call(cmd, shell=True)
 
 def get_SSR(reader1):
@@ -60,23 +57,21 @@ def get_SSR(reader1):
 def find_parent(reader1):
 	cmd = bwa + ' index '	+reader1
 	run_command(cmd)
-	cmd='java -Xmx4g -jar -XX:ParallelGCThreads='+ str(thread)+' '+PICARD+'/CreateSequenceDictionary.jar R='+reader1+' O='+reader1+'.dict'
-	run_command(cmd)
 	cmd = bwa +  ' mem  -M -t '+ str(thread)+'  -R ' +"'@RG\\tID:EV\\tPL:ILLUMINA\\tLB:EV\\tSM:EV'"+' '+reader1+' '+male1+' '+male2+' > male.sam'
 	run_command(cmd)
 	cmd=samtools+" view -@ "+str(thread)+" -bS male.sam -q "+str(MAPQ)+" -o  male.bam"
 	run_command(cmd)
-	cmd='java -jar -XX:ParallelGCThreads='+ str(thread)+' '+PICARD+'/SortSam.jar INPUT=male.bam OUTPUT=male.sort.bam SORT_ORDER=coordinate'
+	cmd='java -jar -XX:ParallelGCThreads='+ str(thread)+' '+PICARD+' SortSam INPUT=male.bam OUTPUT=male.sort.bam SORT_ORDER=coordinate'
 	run_command(cmd)
-	cmd='java -jar -XX:ParallelGCThreads='+str(thread)+' '+PICARD+'/MarkDuplicates.jar INPUT=male.sort.bam OUTPUT=male.sort.dedup.bam METRICS_FILE=male_dedup.metrics ASSUME_SORTED=true VALIDATION_STRINGENCY=SILENT CREATE_INDEX=true REMOVE_DUPLICATES=true'
+	cmd='java -jar -XX:ParallelGCThreads='+str(thread)+' '+PICARD+' MarkDuplicates INPUT=male.sort.bam OUTPUT=male.sort.dedup.bam METRICS_FILE=male_dedup.metrics ASSUME_SORTED=true VALIDATION_STRINGENCY=SILENT CREATE_INDEX=true REMOVE_DUPLICATES=true'
 	run_command(cmd)
 	cmd = bwa +  ' mem  -M -t '+ str(thread)+'  -R ' +"'@RG\\tID:EV\\tPL:ILLUMINA\\tLB:EV\\tSM:EV'"+' '+reader1+' '+female1+' '+female2+' > female.sam'
 	run_command(cmd)
 	cmd=samtools+" view -@ "+str(thread)+" -bS female.sam -q "+str(MAPQ)+" -o  female.bam"
 	run_command(cmd)
-	cmd='java -jar -XX:ParallelGCThreads='+str(thread)+' '+PICARD+'/SortSam.jar INPUT=female.bam OUTPUT=female.sort.bam SORT_ORDER=coordinate'
+	cmd='java -jar -XX:ParallelGCThreads='+str(thread)+' '+PICARD+' SortSam INPUT=female.bam OUTPUT=female.sort.bam SORT_ORDER=coordinate'
 	run_command(cmd)
-	cmd='java -jar -XX:ParallelGCThreads='+str(thread)+' '+PICARD+'/MarkDuplicates.jar INPUT=female.sort.bam OUTPUT=female.sort.dedup.bam METRICS_FILE=female_dedup.metrics ASSUME_SORTED=true VALIDATION_STRINGENCY=SILENT CREATE_INDEX=true REMOVE_DUPLICATES=true'
+	cmd='java -jar -XX:ParallelGCThreads='+str(thread)+' '+PICARD+' MarkDuplicates INPUT=female.sort.bam OUTPUT=female.sort.dedup.bam METRICS_FILE=female_dedup.metrics ASSUME_SORTED=true VALIDATION_STRINGENCY=SILENT CREATE_INDEX=true REMOVE_DUPLICATES=true'
 	run_command(cmd)
 
 	
@@ -119,9 +114,9 @@ def SSRGM(reader1):
 			run_command(cmd)
 			cmd=samtools+" view -@ "+str(thread)+" -bS "+tmp[0]+'.sam'+" -q "+str(MAPQ)+" -o "+ tmp[0]+'.bam'
 			run_command(cmd)
-			cmd='java -jar -XX:ParallelGCThreads='+str(thread)+' '+PICARD+'/SortSam.jar INPUT='+tmp[0]+'.bam'+ ' OUTPUT='+tmp[0]+'.sort.bam'+' SORT_ORDER=coordinate'
+			cmd='java -jar -XX:ParallelGCThreads='+str(thread)+' '+PICARD+' SortSam INPUT='+tmp[0]+'.bam'+ ' OUTPUT='+tmp[0]+'.sort.bam'+' SORT_ORDER=coordinate'
 			run_command(cmd)
-			cmd='java -jar -XX:ParallelGCThreads='+str(thread)+' '+PICARD+'/MarkDuplicates.jar INPUT='+tmp[0]+'.sort.bam'+' OUTPUT='+tmp[0]+'.sort.dedup.bam METRICS_FILE='+tmp[0]+'.metrics ASSUME_SORTED=true VALIDATION_STRINGENCY=SILENT CREATE_INDEX=true REMOVE_DUPLICATES=true'
+			cmd='java -jar -XX:ParallelGCThreads='+str(thread)+' '+PICARD+' MarkDuplicates INPUT='+tmp[0]+'.sort.bam'+' OUTPUT='+tmp[0]+'.sort.dedup.bam METRICS_FILE='+tmp[0]+'.metrics ASSUME_SORTED=true VALIDATION_STRINGENCY=SILENT CREATE_INDEX=true REMOVE_DUPLICATES=true'
 			run_command(cmd)
 			tmpsam=tmp[0]+'.sam'
 			tmpbam=tmp[0]+'.bam'
@@ -132,7 +127,6 @@ def SSRGM(reader1):
 			os.remove(tmpfix)
 			os.remove(tmpfixsort)
 		
-	
 	cmd="awk '{print $1}' Female_marker.txt |sort >Female_mark.idtxt "
 	run_command(cmd)
 	cmd="awk '{print $1}' Male_marker.txt |sort >Male_mark.idtxt "
@@ -1006,18 +1000,18 @@ def get_segregation(x,y):
             list1[i][6]='bc'
         df1=pd.DataFrame(list1)
         df1.to_csv('aaxbc.txt',sep='\t',header=False,index=False)
-    cmd='cat aaxab.txt aaxbc.txt abxaa.txt abxab.txt abxac.txt abxcc.txt abxcd.txt >>allgenotype.txt'
+    cmd='cat aaxab.txt aaxbc.txt abxaa.txt abxab.txt abxac.txt abxcc.txt abxcd.txt >>Allgenotype.txt'
     run_command(cmd)
     list1 = []
     get_proganyID(list1,progenyID)
-    df1 = pd.read_csv('allgenotype.txt',header=None,sep='\t')
+    df1 = pd.read_csv('Allgenotype.txt',header=None,sep='\t')
     df1=df1.values.tolist()
     df1=pd.DataFrame(df1)
     namelist=['SSR_site','Ref_SSR_type','Number','Female','Female_segregation_type','Male','Male_segregation_type',]
     list1=namelist+list1
     df1.columns=list1
-    df1.to_excel('allgenotype.xls', index=False,header=True)
-    chang_head('allgenotype.txt')
+    df1.to_excel('Allgenotype.xls', index=False,header=True)
+    chang_head('Allgenotype.txt')
     list1 = []
     get_proganyID(list1,progenyID)
     if(os.path.isfile('abxaa.txt')==True):
@@ -1071,35 +1065,79 @@ def callparent(order):
 	p.close()
 	p.join()
 def getfastiq(x):
-    
+    global male1,male2,female1,female2
     Myproid=open('Myprogeny.id','w')
     Myproid.close()
     with open(x,'r') as f:
         i=0
         for line in f:
             i=i+1
-            if (line.startswith("[progeny fastq files]")):
+            if (line.startswith("[fastq files]")):
                 flag=i
                 break
     with open(x,'r') as f:
-        f =f.readlines()[flag:]
+        f =f.readlines()[flag+2:]
         for line in f:
             line=line.strip()
             myout=line.split(":")[0]+'\t'+line.split()[0].split(":")[1]+'\t'+line.split()[1]
             with open('Myprogeny.id',"a+") as f2:
                 f2.write(myout+"\n")
-    
+    with open(x,'r') as f:
+        f =f.readlines()[flag:flag+2]
+        for line in f:
+            line=line.strip()
+            if (line.split(":")[0]=='male'):
+                male1=parentfold+'/'+line.split()[0].split(":")[1]
+                male2=parentfold+'/'+line.split()[1]
+            if (line.split(":")[0]=='female'):
+                female1=parentfold+'/'+line.split()[0].split(":")[1]
+                female2=parentfold+'/'+line.split()[1]
     if(os.path.isfile('Myprogeny.id')):
         return ('./Myprogeny.id')
+def populationtype(p):
+    print(p)
+    os.mkdir('./WorkingDirectory')
+    cmd='mv *.bam *.bai ./WorkingDirectory'
+    run_command(cmd)
+    if (p == 'F2'):
+        cmd='mv abxab* ./WorkingDirectory'    
+        run_command(cmd)
+        cmd='rm a* '
+        run_command(cmd)
+        cmd='mv ./WorkingDirectory/abxab* ./'
+        run_command(cmd)
+    elif(p.split(':')[0] == 'BC'):
+        if (p.split(':')[1] == 'male'):
+            cmd='mv abxaa* ./WorkingDirectory'
+            run_command(cmd)
+            cmd='rm a* '
+            run_command(cmd)
+            cmd='mv ./WorkingDirectory/abxaa* ./'
+            run_command(cmd)
+        elif(p.split(':')[1] == 'female'):
+            cmd='mv aaxab* ./WorkingDirectory'
+            run_command(cmd)
+            cmd='rm a* '
+            run_command(cmd)
+            cmd='mv ./WorkingDirectory/aaxab* ./'
+            run_command(cmd)
+    cmd='mv  *.vcf *marker* ./WorkingDirectory'
+    run_command(cmd)
+    cmd='rm *.all_type  *.tab'
+    run_command(cmd)
+    cmd='mv female* male*  Male* Female*   ./WorkingDirectory'
+    run_command(cmd)
 def main(args):
-	global progenyID,motif,wgs 
+	global progenyID,motif,wgs
 	progenyID=getfastiq("parameters.ini")
 	motif = args.motif
 	wgs = args.WGS
+	population=args.population
 	if (wgs=='True'):
 		wgs=''
 	elif(wgs=='False'):
 		wgs=' --targeted --coverage  --nonuniform '
+	
 	get_SSR(GENOME)
 	find_parent(GENOME)
 	tasks=['male','female']
@@ -1112,22 +1150,21 @@ def main(args):
 	get_segregation('Female_marker.txt.1','Male_marker.txt.1')
 	write2map('Male_pure_pchis.out','Male_marker.txt','aaxab.joinmap.txt','Male_hybrid_pchis.out','Male.abxab.joinmap.txt','Male_abxaa_Fslinkmap.txt','Male_abxab_Fslinkmap.txt')
 	write2map('Female_pure_pchis.out','Female_marker.txt','abxaa.joinmap.txt','Female_hybrid_pchis.out','Female.abxab.joinmap.txt','Female_abxaa_Fslinkmap.txt','Female_abxab_Fslinkmap.txt')
-	os.mkdir('./WorkingDirectory')	
-	cmd='mv *.bam *.bai ./WorkingDirectory'
-	run_command(cmd)
-	cmd='mv female* male*  Male* Female*   ./WorkingDirectory'
-	run_command(cmd)
-	cmd='mv  *.vcf *marker* ./WorkingDirectory'
-	run_command(cmd)	
-	cmd='rm *.all_type  *.tab'
-	run_command(cmd)
+	populationtype(population)
+
+
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(
 		prog="python SSRGT.py",
 		formatter_class=argparse.RawTextHelpFormatter,
 		description='''
 -------------------------------------------------------------------------------------------------------
-SSRGT is a software used to genotype and SSR calling across a hybrid population with genome resequencing data.			
+SSRGT provides a usable and accurate SSR genotyping platform for distant hybridization populations. 
+It has the advantage that a large number of SSR loci segregated by Mendelian segregation ratio in a
+population can be discovered with a simple command and an input format file can be generated for the
+genetic mapping software. It will facilitate the construction of SSR genetic linkage maps,
+locating quantitative trait loci, marker-assisted selection breeding and various genetic studies.			
+
 Contact: Chunfa Tong  <tongchf@njfu.edu.cn>
 Version: 1.0
 Usage: python SSRGT.py  [Options]
@@ -1141,7 +1178,12 @@ Usage: python SSRGT.py  [Options]
 	parser.add_argument(
 		'-wgs', '--WGS', 
 		default='False',
-		help="set the sequencing data type, default : False \nIf your sequencing data is RAD-seq or WES data, you should choose '-wgs False', if it's whole genome sequencing, choose '-wgs True'")
+		help="set the sequencing data type, default : False \nIf your sequencing data is RAD-seq or GBS data, you should choose '-wgs False', if it's whole genome sequencing, choose '-wgs True'")
+	parser.add_argument(
+		'-p', '--population',
+		default='CP',
+		help="set the population type [CP,F2,BC], default : CP \nIf your population type  is CP or F2, you should choose 'CP' or 'F2', if it's BC population type and the maternal parent is recurrent parent, choose 'BC:female'")
+
 	args = parser.parse_args()
 	filename='./parameters.ini'
 	if(os.path.isfile(filename)==False):
@@ -1153,14 +1195,8 @@ Usage: python SSRGT.py  [Options]
         	sys.exit(' Error!Please check  the line of BWA in the parameters.ini')
 	if(os.path.isfile(samtools)==False):
         	sys.exit(' Error!Please check  the line of SAMTOOLS in the parameters.ini')
-	if(os.path.isfile(male1)==False ):
-        	sys.exit(' Error!Please check  the line of MALEPARENT_1 in the parameters.ini')
-	if(os.path.isfile(male2)==False ):
-        	sys.exit(' Error!Please check  the line of MALEPARENT_2 in the parameters.ini')
-	if(os.path.isfile(female1)==False ):
-        	sys.exit(' Error!Please check  the line of FEMALEPARENT_1 in the parameters.ini')
-	if(os.path.isfile(female2)==False ):
-        	sys.exit(' Error!Please check  the line of FEMALEPARENT_2 in the parameters.ini')
+	if(os.path.exists(parentfold)==False ):
+        	sys.exit(' Error!Please check  the line of PARENT in the parameters.ini')
 	if(os.path.exists(progenyfold)):
 		if(os.path.exists(script)):
 			main(args)
