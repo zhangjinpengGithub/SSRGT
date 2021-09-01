@@ -13,34 +13,30 @@ SSRGT is a software used to genotype and SSR calling across a hybrid population 
 5. Generating input format files for the genetic mapping software JoinMap and FsLinkageMap.
 
 # Usage
-To run SSRGT, users should install three prerequisite packages: [BWA-men2](https://github.com/bwa-mem2/bwa-mem2), [GangSTR](https://github.com/gymreklab/GangSTR)  and [SAMtools](http://samtools.sourceforge.net/).  Furthermore, an additional setting file parameter is required, namely `parameters.ini`. The parameter file contains four parts, i.e., folders, data files, parameter and progeny fastq files. As the first part, 'folders' gives the BWA-men2, GangSTR and SAMtools paths to use to run SSRGT software. In addition, 'SCRIPT' provides a built-in script storage path and, 'PROGENY' provides a path to the progeny resequencing data. The second part 'data files' includes the reference genome file path and the two parents sequencing data files. The third part 'parameter' includes the specified mapping quality (MAPQ) threshold, the number of threads used for parallel computing, the read depth of each genotype call, the quality score of estimated alleles, the probability to observe a stutter error, the percent of the maximum missing genotypes at an SSR locus and the minimum p-value allowed for testing the segregation ratio of an SSR locus.Finally,the 'progeny fastq files' includes the name of the progeny and the first read files and the second read files.  A typical parameter file looks as following:
+To run SSRGT, users should install three prerequisite packages: [BWA-men2](https://github.com/bwa-mem2/bwa-mem2), [GangSTR](https://github.com/gymreklab/GangSTR)  and [SAMtools](http://samtools.sourceforge.net/).  Furthermore, an additional setting file parameter is required, namely `parameters.ini`. The parameter file contains three parts: folders, parameter and fastq files. As the first part, ‘folders’ gives the software paths of the BWA-MEM2, GangSTR and SAMtools. In addition, a script storage path, a reference genome path and resequencing data path need to be provided. The second part ‘parameter’ consists of the specified mapping quality (MAPQ) threshold, the number of threads used for parallel computing, the depth of allele coverage, the quality score of estimated alleles, the probability to observe a stutter error, the percent of the maximum missing genotypes at an SSR locus and the minimum p-value allowed for testing the segregation ratio of an SSR locus. Finally, the ‘fastq files’ includes the names of parents and progeny and the first read files and the second read files.  A typical parameter file looks as following:
 
         [folders]  
         BWA:/mnt/sda/tong/yuyingxuan/software/bwa-mem2/bwa-mem2
         SAMTOOLS:/mnt/sda/tong/yuyingxuan/software/samtools-1.9/samtools
-        SCRIPT:/mnt/sda/tong/yuyingxuan/zjp/SSRGT/script
-        PROGENY:/mnt/sda/tong/yuyingxuan/zjp/SSRGT
         GangSTR:/mnt/sda/tong/yuyingxuan/miniconda3/envs/python3/bin/GangSTR
-        [data files]  
-        REFERENCE_GENOME:/mnt/sda/tong/yuyingxuan/zjp/SSRGT/p.ref
-        MALEPARENT_1:/mnt/sda/tong/yuyingxuan/zjp/SSRGT/male.R1.fq
-        MALEPARENT_2:/mnt/sda/tong/yuyingxuan/zjp/SSRGT/male.R2.fq
-        FEMALEPARENT_1:/mnt/sda/tong/yuyingxuan/zjp/SSRGT/female.R1.fq
-        FEMALEPARENT_2:/mnt/sda/tong/yuyingxuan/zjp/SSRGT/female.R2.fq
+        SCRIPT:/mnt/sda/tong/yuyingxuan/zjp/SSRGT/script
+        PARENT:/mnt/sda/tong/yuyingxuan/zjp/SSRGT
+        PROGENY:/mnt/sda/tong/yuyingxuan/zjp/SSRGT
+        REFERENCE GENOME:/mnt/sda/tong/yuyingxuan/zjp/SSRGT/p.ref
         [parameter]  
-        MAPQ:35
+        MAPQ:40
         THREADS:30
-        Depth_Of_Coverage:5
+        Depth Of Coverage:5
         Alleles quality score:0.9
         Stutter:0.05
         PVALUE: 0.01
-        MISS_GENOTYPES:0.3
-        [progeny fastq files]
+        MISS GENOTYPES:0.3
+        [fastq files]
+        male:male.R1.fq male.R2.fq
+        female:female.R1.fq female.R2.fq
         sample01:sample01.R1.fq sample01.R2.fq
         sample02:sample02.R1.fq sample02.R2.fq
         sample03:sample03.R1.fq sample03.R2.fq
-        sample04:sample04.R1.fq sample04.R2.fq
-        sample05:sample05.R1.fq sample05.R2.fq
         '''
         sample18:sample18.R1.fq sample18.R2.fq
         sample19:sample19.R1.fq sample19.R2.fq
@@ -68,7 +64,11 @@ Additionally, users need to install python modules in python 3 environment, incl
 
     usage: python SSRGT.py [-h] [-mo MOTIF]
      ----------------------------------------------------------------------------------------
-    SSRGT is a software used to genotype and SSR calling across a hybrid population with genome resequencing data.
+    SSRGT provides a usable and accurate SSR genotyping platform for distant hybridization populations.
+    It has the advantage that a large number of SSR loci segregated by Mendelian segregation ratio in a
+    population can be discovered with a simple command and an input format file can be generated for the
+    genetic mapping software. It will facilitate the construction of SSR genetic linkage maps,
+    locating quantitative trait loci, marker-assisted selection breeding and various genetic studies.
     Contact: Chunfa Tong  <tongchf@njfu.edu.cn>
     Version: 1.0
     Usage: python SSRGT.py  [Options]
@@ -82,7 +82,9 @@ Additionally, users need to install python modules in python 3 environment, incl
                             right of equal : the minimum number of repeat
       -wgs WGS, --WGS WGS   set the sequencing data type, default : False
                             If your sequencing data is RAD-seq or GBS data, you should choose '-wgs False', if it's whole genome sequencing, choose '-wgs True'
-
+      -p POPULATION, --population POPULATION
+                            set the population type [CP,F2,BC], default : CP
+                            If your population type  is CP or F2, you should choose 'CP' or 'F2', if it's BC population type and the    maternal parent is recurrent parent, choose 'BC:female'
 After the program has finished running, if the user wants to locate the SSR loci by reference genome，they can use the following command  in the 'script' folder. This step will facilitate functional annotation (e.g., GO, KEGG, Pfam) studies of genes containing SSRs.
 
 ```
