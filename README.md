@@ -21,7 +21,15 @@ To compile SSRGT, the following packages are required:
 - perl   (version >=5.26)
 - python (version >=3.6)
 - java   (version >=1.8)
-
+You can do this with the following command：
+```
+curl -L https://github.com/bwa-mem2/bwa-mem2/releases/download/v2.0pre2/bwa-mem2-2.0pre2_x64-linux.tar.bz2 \
+  | tar jxf -
+conda install -c bioconda -c conda-forge gangstr
+conda install samtools
+pip install pandas
+pip install xlwt
+```
 # Usage
 To run SSRGT, users should install three prerequisite packages: [BWA-men2](https://github.com/bwa-mem2/bwa-mem2), [GangSTR](https://github.com/gymreklab/GangSTR)  and [SAMtools](http://samtools.sourceforge.net/).  Furthermore, an additional setting file parameter is required, namely `parameters.ini`. The parameter file contains three parts: folders, parameter and fastq files. As the first part, ‘folders’ gives the software paths of the BWA-MEM2, GangSTR and SAMtools. In addition, a script storage path, a reference genome path and resequencing data path need to be provided. The second part ‘parameter’ consists of the specified mapping quality (MAPQ) threshold, the number of threads used for parallel computing, the depth of allele coverage, the quality score of estimated alleles, the probability to observe a stutter error, the percent of the maximum missing genotypes at an SSR locus and the minimum p-value allowed for testing the segregation ratio of an SSR locus. Finally, the ‘fastq files’ includes the names of parents and progeny and the first read files and the second read files.  A typical parameter file looks as following:
 
