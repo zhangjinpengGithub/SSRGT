@@ -18,7 +18,7 @@ To compile SSRGT, the following packages are required:
 - [SAMtools](http://samtools.sourceforge.net/)
 - [pandas](https://github.com/pandas-dev/pandas)
 - [xlwt](https://github.com/python-excel/xlwt)
-- perl
+- perl   (version >=5.26)
 - python (version >=3.6)
 - java   (version >=1.8)
 
