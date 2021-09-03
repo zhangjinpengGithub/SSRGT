@@ -41,7 +41,11 @@ def get_SSR(reader1):
 	run_command(cmd1)
 	cmd2 = samtools + ' faidx ' + reader1  
 	run_command(cmd2)
-	SSR=reader1+'.SSRs'
+	files = os.listdir()
+	for file in files:
+		if (file.find('SSRs')!=-1):
+        		SSR=file
+	minmotif=motif.split(',')[0].split('=')[1]
 	file = open(SSR, "r")
 	lines = file.readlines()
 	for line in lines:
@@ -50,9 +54,12 @@ def get_SSR(reader1):
 			continue
 		else:
 			tmp=line.split("\t")
-			geneID=tmp[1]+'\t'+tmp[6]+'\t'+tmp[7]+'\t'+tmp[3]+'\t'+tmp[2]
-			with open('myregions',"a+") as f2:
-				f2.write(geneID+"\n")
+			if (tmp[3]=='1' and int(tmp[4])<int(minmotif)):
+				continue
+			else:
+				geneID=tmp[1]+'\t'+tmp[6]+'\t'+tmp[7]+'\t'+tmp[3]+'\t'+tmp[2]
+				with open('myregions',"a+") as f2:
+					f2.write(geneID+"\n")
 	file.close()
 def find_parent(reader1):
 	cmd = bwa + ' index '	+reader1
@@ -1151,7 +1158,6 @@ def main(args):
 	write2map('Male_pure_pchis.out','Male_marker.txt','aaxab.joinmap.txt','Male_hybrid_pchis.out','Male.abxab.joinmap.txt','Male_abxaa_Fslinkmap.txt','Male_abxab_Fslinkmap.txt')
 	write2map('Female_pure_pchis.out','Female_marker.txt','abxaa.joinmap.txt','Female_hybrid_pchis.out','Female.abxab.joinmap.txt','Female_abxaa_Fslinkmap.txt','Female_abxab_Fslinkmap.txt')
 	populationtype(population)
-
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(
