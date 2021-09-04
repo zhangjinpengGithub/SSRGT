@@ -13,7 +13,7 @@ SSRGT is a software used to genotype and SSR calling across a hybrid population 
 5. Generating input format files for the genetic mapping software JoinMap and FsLinkageMap.
 # Requirements
 To compile SSRGT, the following packages are required:
-- [BWA-men2](https://github.com/bwa-mem2/bwa-mem2) or 
+- [BWA-men2](https://github.com/bwa-mem2/bwa-mem2)  or  [BWA](https://github.com/lh3/bwa)
 - [SAMtools](http://samtools.sourceforge.net/)
 - [pandas](https://github.com/pandas-dev/pandas)
 - [xlwt](https://github.com/python-excel/xlwt)
@@ -22,33 +22,29 @@ To compile SSRGT, the following packages are required:
 - java   (version >=1.8)
 You can do this with the following command：
 ```
-curl -L https://github.com/bwa-mem2/bwa-mem2/releases/download/v2.0pre2/bwa-mem2-2.0pre2_x64-linux.tar.bz2 \
-  | tar jxf -
-conda install -c bioconda -c conda-forge gangstr
+conda install bwa
 conda install samtools
 pip install pandas
 pip install xlwt
 ```
 # Usage
-To run SSRGT, users should install three prerequisite packages: [BWA-men2](https://github.com/bwa-mem2/bwa-mem2), [GangSTR](https://github.com/gymreklab/GangSTR)  and [SAMtools](http://samtools.sourceforge.net/).  Furthermore, an additional setting file parameter is required, namely `parameters.ini`. The parameter file contains three parts: folders, parameter and fastq files. As the first part, ‘folders’ gives the software paths of the BWA-MEM2, GangSTR and SAMtools. In addition, a script storage path, a reference genome path and resequencing data path need to be provided. The second part ‘parameter’ consists of the specified mapping quality (MAPQ) threshold, the number of threads used for parallel computing, the depth of allele coverage, the quality score of estimated alleles, the probability to observe a stutter error, the percent of the maximum missing genotypes at an SSR locus and the minimum p-value allowed for testing the segregation ratio of an SSR locus. Finally, the ‘fastq files’ includes the names of parents and progeny and the first read files and the second read files.  A typical parameter file looks as following:
+To run SSRGT, users should install two prerequisite packages: BWA and SAMtools.  Furthermore, an additional setting file parameter is required, namely `parameters.ini`. The parameter file contains three parts: folders, parameter and files. As the first part, ‘folders’ gives the software paths of the BWA and SAMtools. In addition, a script storage path and resequencing data path need to be provided. The second part ‘parameter’ consists of the specified mapping quality (MAPQ) threshold, the number of threads used for parallel computing, the depth of allele coverage, the minimum percentage frequency of a homozygotes, the minimum percentage frequency of a heterozygotes, the percent of the maximum missing genotypes at an SSR locus and the minimum p-value allowed for testing the segregation ratio of an SSR locus. Finally, the ‘fastq files’ includes the names of parents and progeny and the first read files and the second read files.  A typical parameter file looks as following:
 
         [folders]  
-        BWA:/mnt/sda/tong/yuyingxuan/software/bwa-mem2/bwa-mem2
-        SAMTOOLS:/mnt/sda/tong/yuyingxuan/software/samtools-1.9/samtools
-        GangSTR:/mnt/sda/tong/yuyingxuan/miniconda3/envs/python3/bin/GangSTR
-        SCRIPT:/mnt/sda/tong/yuyingxuan/zjp/SSRGT/script
-        PARENT:/mnt/sda/tong/yuyingxuan/zjp/SSRGT
-        PROGENY:/mnt/sda/tong/yuyingxuan/zjp/SSRGT
-        REFERENCE GENOME:/mnt/sda/tong/yuyingxuan/zjp/SSRGT/p.ref
-        [parameter]  
-        MAPQ:40
+        BWA:~/bwa-0.7.15
+        SAMTOOLS:~/software/samtools-1.9
+        SSRGT FOLD:~/zjp/SSRGT
+        RADDATA FOLD:/mnt/sda/tong/yuyingxuan/zjp/exampledata
+        [parameter]
+        MAPQ:30
         THREADS:30
         Depth Of Coverage:5
-        Alleles quality score:0.9
-        Stutter:0.05
+        Frequency Of Homozygotes:0.7
+        Frequency Of Heterozygotes:0.35
         PVALUE: 0.01
         MISS GENOTYPES:0.3
-        [fastq files]
+        [files]
+        reference genome:p.ref
         male:male.R1.fq male.R2.fq
         female:female.R1.fq female.R2.fq
         sample01:sample01.R1.fq sample01.R2.fq
@@ -94,11 +90,9 @@ Additionally, users need to install python modules in python 3 environment, incl
     optional arguments:
       -h, --help            show this help message and exit
       -mo MOTIF, --motif MOTIF
-                            set the threshold of motif, default: 1=10,2=5,3=4,4=4,5=4,6=4
+                            set the threshold of motif, default: 1=11,2=5,3=4,4=4,5=4,6=4
                             left  of equal : length of motif
                             right of equal : the minimum number of repeat
-      -wgs WGS, --WGS WGS   set the sequencing data type, default : False
-                            If your sequencing data is RAD-seq or GBS data, you should choose '-wgs False', if it's whole genome sequencing, choose '-wgs True'
       -p POPULATION, --population POPULATION
                             set the population type [CP,F2,BC], default : CP
                             If your population type  is CP or F2, you should choose 'CP' or 'F2', if it's BC population type and the    maternal parent is recurrent parent, choose 'BC:female'
