@@ -13,25 +13,36 @@ from configparser import ConfigParser
 cfg = ConfigParser()
 cfg.read("parameters.ini")
 bwa=cfg.get("folders","BWA")
-GangSTR=cfg.get("folders","GangSTR")
-samtools=cfg.get("folders","SAMTOOLS")
+samtools=cfg.get("folders","SAMTOOLS")+'/samtools'
 thread=cfg.getint("parameter","THREADS")
-Stutter=cfg.get("parameter","Stutter")
 MAPQ=cfg.getint("parameter","MAPQ")
 pvalue=cfg.get("parameter","PVALUE")
 MISPCT=cfg.get("parameter","MISS GENOTYPES")
-GENOME=cfg.get("folders","REFERENCE GENOME")
-progenyfold=cfg.get("folders","PROGENY")
-parentfold=cfg.get("folders","PARENT")
-script=cfg.get("folders","SCRIPT")
+data_fold=cfg.get("folders","RADDATA FOLD")
+GENOME=data_fold+'/'+cfg.get("files","reference genome")
+progenyfold=data_fold
+parentfold=data_fold
+script=cfg.get("folders","SSRGT FOLD")+'/script'
 SSRMMD=script+'/SSRMMD.pl'
 PICARD=script+'/picard.jar'
 DP=cfg.get("parameter","Depth Of Coverage")
-Alleles_Quality=cfg.get("parameter","Alleles quality score")
 DP=int(DP)
-Alleles_Quality=float(Alleles_Quality)
 ###########################################################################################################
-
+Home=os.environ['HOME']
+if (bwa.startswith("~")):
+	bwa=bwa.replace("~",Home)
+if (samtools.startswith("~")):
+        samtools=samtools.replace("~",Home)
+if (data_fold.startswith("~")):
+        data_fold=data_fold.replace("~",Home)
+if (script.startswith("~")):
+        script=script.replace("~",Home)
+files =os.listdir(bwa)
+for file in files:
+	if (file.endswith('bwa-mem2')):
+		bwa=bwa+'/bwa-mem2'
+	elif(file.endswith('bwa')):
+		bwa=bwa+'/bwa'
 def run_command(cmd):
 #	print(cmd)
 	return_code = subprocess.call(cmd, shell=True)
@@ -47,6 +58,8 @@ def get_SSR(reader1):
         		SSR=file
 	minmotif=motif.split(',')[0].split('=')[1]
 	file = open(SSR, "r")
+	file1 = open('SSR.txt', "w")
+	file1.close()
 	lines = file.readlines()
 	for line in lines:
 		line=line.strip()
@@ -57,9 +70,8 @@ def get_SSR(reader1):
 			if (tmp[3]=='1' and int(tmp[4])<int(minmotif)):
 				continue
 			else:
-				geneID=tmp[1]+'\t'+tmp[6]+'\t'+tmp[7]+'\t'+tmp[3]+'\t'+tmp[2]
-				with open('myregions',"a+") as f2:
-					f2.write(geneID+"\n")
+				with open('SSR.txt',"a+") as f2:
+					f2.write(line+"\n")
 	file.close()
 def find_parent(reader1):
 	cmd = bwa + ' index '	+reader1
@@ -89,7 +101,7 @@ def get_proganyID(list1,proganyID):
                         list1.append(a[0])
 
 def SSRGM(reader1):
-			
+				
 	cmd='python   '+script+'/parent_merge.py '+'-parent1 male.vcf01.txt.out -parent2 femaleallSSR_type.txt -o female.out'
 	run_command(cmd)
 	cmd='python   '+script+'/parent_merge.py '+'-parent1 female.vcf01.txt.out -parent2 maleallSSR_type.txt -o  male.out'
@@ -108,7 +120,7 @@ def SSRGM(reader1):
 	data = pd.merge(df1,df2,on=0,how="left")
 	df=data.dropna(axis=0,how='any')
 	df.to_csv('Male_marker.txt',sep='\t',header=False,index=False)
-	
+		
 	os.remove('female.sam')
 	os.remove('male.sam')
 	os.remove('female.bam')
@@ -133,134 +145,36 @@ def SSRGM(reader1):
 			os.remove(tmpbam)
 			os.remove(tmpfix)
 			os.remove(tmpfixsort)
-		
-	cmd="awk '{print $1}' Female_marker.txt |sort >Female_mark.idtxt "
-	run_command(cmd)
-	cmd="awk '{print $1}' Male_marker.txt |sort >Male_mark.idtxt "
-	run_command(cmd)
-	cmd="sort Female_mark.idtxt Male_mark.idtxt  | uniq  > mergeid.txt "
-	run_command(cmd)
-	parentmyregion('mergeid.txt')
-	df=pd.read_csv(progenyID,sep='\t',header=None)
-	len_df=len(df)
-	if (len_df<thread):
-		mythread=len_df
-	else:
-		mythread=thread
-	numble=int(len_df/mythread)
-	gtrd=pd.read_csv(progenyID,chunksize=numble,sep='\t',header=None)
-	a=0
-	order=[]
-	for i in gtrd :
-		a=a+1
-		order.append(str(a)+'.tmptxt')
-		i.to_csv(f"{str(a)}.tmptxt",sep='\t',header=None,index=False)
-	p=Pool(mythread)
-	p.map(callprogeny,order)
-	p.close()
-	p.join()
-	for a in order:
-		os.remove(a)
-	
-	with open(progenyID) as f:
-		for line in f:
-			tmp = line.strip().split('\t')
-			cmd='python '+script+'/progenyGT.py '+'Female_marker.txt '+tmp[0]+'.all_type '+tmp[0]+'.out'
+			cmd='python '+script+'/progenyGT.py '+'Female_marker.txt '+tmp[0]+'.sort.dedup.bam '+tmp[0]+'.out'
 			run_command(cmd)
 			tmout=tmp[0]+'.out'
 			os.remove(tmout)
-			cmd='python '+script+'/progenyGT.py '+'Male_marker.txt '+tmp[0]+'.all_type '+tmp[0]+'.out2'
+			cmd='python '+script+'/progenyGT.py '+'Male_marker.txt '+tmp[0]+'.sort.dedup.bam '+tmp[0]+'.out2'
 			run_command(cmd)
 			tmout=tmp[0]+'.out2'
 			os.remove(tmout)
-		
 	list1 = []
 	get_proganyID(list1,progenyID)
+	df1 = pd.read_table('Male_marker.txt',header=None)
+	df1=df1.values.tolist()
+	for a in range(len(df1)):
+		strings=df1[a][0]
+		df1[a][0]=strings.split(":")[0]+':'+str(int(strings.split(":")[1])+3)
+	df1=pd.DataFrame(df1)
+	df1.to_csv('Male_marker.txt',sep='\t',header=False,index=False)
 	genetype('Male_marker.txt',list1,progenyID,'Male_marker.out')
-	genetype('Female_marker.txt',list1,progenyID,'Female_marker.out')
 	
-def parentmyregion(c):
-    file=open("myregions.tmp","w")
-    file.close
-    file=open("regious.tmp","w")
-    file.close
-    cmd="sed 's/\t/:/g' myregions >myregions.tmp"
-    run_command(cmd)
-    with open(c,'r') as f:
-        for line in f:
-            tmp=line.strip().split("\t")
-            cmd=' grep -w '+tmp[0]+' myregions.tmp' +' >>regious.tmp'
-            run_command(cmd)
-    cmd="less -S regious.tmp|sort |uniq|sed  's/:/\t/g' >parentmyregions"
-    run_command(cmd)
-
-def callprogeny(i):
-    file=open(i,"r")
-    lines = file.readlines()
-    for line in lines:
-        tmp=line.split("\t")
-        gene=tmp[0]
-        my_progeny(gene)
-    file.close
-def my_progeny(x):
-    y=x+'.sort.dedup.bam'
-    cmd=GangSTR +' --bam '+ y + ' --ref '+ GENOME +' --regions parentmyregions'+ ' --stutterup '+Stutter+' --stutterdown '+Stutter+' --out '+ x +' '+wgs
-    run_command(cmd)
-    vcf=x+'.vcf'
-    outall=x+'.alltype'
-    callprogeny_vcf(vcf,outall)
-    cmd='less -S '+outall+' |sort|uniq > '+x+'.all_type'
-    run_command(cmd)
-    cmd=' rm '+outall
-    run_command(cmd)
-def callprogeny_vcf(x,outall):
-    with open(x,'r') as f:
-        for line in f:
-            if (line.startswith("#")):
-                continue
-            else:
-                tmp=line.strip().split("\t")
-                if(tmp[9]=='.'):
-                    continue
-                elif(tmp[9].find('/')):
-                    GT=tmp[9].split(":")[0]
-                    myDP=int(tmp[9].split(":")[1])
-                    Q=float(tmp[9].split(":")[2])
-                    if (myDP>=DP and Q>=Alleles_Quality):
-                        mydtct0=""
-                        mydtct2=""
-                        gene_rep=tmp[0]+":"+tmp[1]
-                        motif_str=tmp[7].split(";")[1].split("=")[1]
-                        motif_repeat=tmp[7].split(";")[3].split("=")[1]
-                        len1=len(tmp[3])
-                        if(GT=='0/0'):
-                            mydtct0=tmp[3]
-                            myout=gene_rep+'\t'+mydtct0+'/'+mydtct0
-                            with open(outall,"a+") as f3:
-                                f3.write(myout+"\n")
-                        elif(GT=='1/1'):
-                            mydtct0=tmp[4]
-                            if(len(mydtct0)>5):
-                                myout=gene_rep+'\t'+mydtct0+'/'+mydtct0
-                                with open(outall,"a+") as f3:
-                                    f3.write(myout+"\n")
-                        elif(GT=='0/1' or GT=='1/0'):
-                            mydtct0=tmp[3]
-                            mydtct2=tmp[4]
-                            if(len(mydtct2)>5):
-                                myout=gene_rep+'\t'+mydtct0+'/'+mydtct2
-                                with open(outall,"a+") as f3:
-                                    f3.write(myout+"\n")
-                        elif(GT=='1/2'):
-                            mydtct0=tmp[4].split(",")[0]
-                            mydtct2=tmp[4].split(",")[1]
-                            if(len(mydtct2)>5 and len(mydtct0)>5):
-                                myout=gene_rep+'\t'+mydtct0+'/'+mydtct2
-                                with open(outall,"a+") as f3:
-                                    f3.write(myout+"\n")
-                    else:
-                        continue
-
+	
+	list1 = []
+	get_proganyID(list1,progenyID)
+	df1 = pd.read_table('Female_marker.txt',header=None)
+	df1=df1.values.tolist()
+	for a in range(len(df1)):
+		strings=df1[a][0]
+		df1[a][0]=strings.split(":")[0]+':'+str(int(strings.split(":")[1])+3)
+	df1=pd.DataFrame(df1)
+	df1.to_csv('Female_marker.txt',sep='\t',header=False,index=False)
+	genetype('Female_marker.txt',list1,progenyID,'Female_marker.out')		
 def genetype(x,list1,progenyID,out):
         df1 = pd.read_csv(x,header=None,sep='\t')
         df1=df1.values.tolist()
@@ -464,12 +378,20 @@ def abxac(x,out2,y):
     open2.close()
     file.close()
     myout2=out2+'.out'
-    cmd='Rscript ' +script+'/abxcd.R '+out2+' '+myout2
-    run_command(cmd)
+    with open(out2,"r") as f2:
+        lines = f2.readlines()
+        flen=len(lines)
+        if (flen > 1):
+            cmd='Rscript ' +script+'/abxcd.R '+out2+' '+myout2
+            run_command(cmd)
     if(os.path.isfile(myout2)==True):
         file = open(myout2, "r")
         z=y+'.joinmap'
         lines = file.readlines()
+        flen=len(lines)
+        if (flen < 2):
+            print(myout2)
+            return 0
         for line in lines:
             line=line.strip()
             tmp=line.split("\t")
@@ -771,15 +693,15 @@ def pchisq(x,out2,out3):
 	cmd='Rscript ' +script+'/pchisq.R '+out2+' '+out3+' '+myout2+' '+myout3
 	run_command(cmd)
 def ALL_type(y):
-	df1 = pd.read_csv(y,header=None,sep='\t')
+	df1 = pd.read_table(y,header=None)
 	list1=df1.values.tolist()
 	df1=pd.DataFrame(list1)
 	df1 = df1.fillna('--')
 	list2=df1.values.tolist()
-	progany= pd.read_csv(progenyID,sep='\t')
+	progany= pd.read_table(progenyID)
 	progany=progany.values.tolist()
 	for i in range(len(list2)):
-		ssr=''.join(re.findall(r'[atcg]', list2[i][1]))
+		ssr=''.join(re.findall(r'[ATCG]', list2[i][1]))
 		if (change(list2[i][3].split('/')[0],ssr) and change(list2[i][3].split('/')[1],ssr) and change(list2[i][5].split('/')[0],ssr) and change(list2[i][5].split('/')[1],ssr)):
 			list2[i][3]=change(list2[i][3].split('/')[0],ssr)+'/'+change(list2[i][3].split('/')[1],ssr)
 			list2[i][5]=change(list2[i][5].split('/')[0],ssr)+'/'+change(list2[i][5].split('/')[1],ssr)
@@ -813,9 +735,13 @@ def change(s,a):
     if (len(find_list)==1):
         gt=a+'('+str(s.count(a))+')'
         return (gt)
-    else:
-        return (0)
-
+    elif (len(find_list)==2):
+        start=len(find_list[0])
+        end=len(s)-len(find_list[1])
+        gt=a+'('+str(find_list[0].count(a))+')'+'('+s[start:end]+')'+a+'('+str(find_list[1].count(a))+')'
+        return (gt)
+    elif (len(find_list)>2):
+        return 0
 def get(x,y,z):
     f = open(y,'r')
     lines = f.readlines()
@@ -1054,23 +980,17 @@ def chang_head(x):
     list1=namelist+list1
     df1.columns=list1
     df1.to_csv(x,sep='\t',header=True,index=False)
-def call(x):
-	y=x+'.sort.dedup.bam'
-	cmd=GangSTR +' --bam '+ y + ' --ref '+ GENOME +' --regions myregions'+ ' --stutterup '+Stutter+' --stutterdown '+Stutter+' --out '+ x +' '+wgs 
-	run_command(cmd)
-	vcf=x+'.vcf'
-	out=x+'.vcf'+'01.txt'
-	out2=x+'allSSR_type.txt'
-	cmd='python '+script+'/parentGT.py'+ ' ' +vcf + '  '+out +' '+out2
-	run_command(cmd)
-	myout=out+'.out'
-	cmd='less -S '+out+ ' |sort|uniq > '+myout
-	run_command(cmd)
-def callparent(order):
-	p=Pool(2)
-	p.map(call,order)
-	p.close()
-	p.join()
+def callparent(i):
+        y=i+'.sort.dedup.bam'
+        out=i+'.vcf'+'01.txt'
+        out2=i+'allSSR_type.txt'
+        SSR=GENOME+'.SSRs'
+        cmd='python '+script+'/parentGT.py '+ ' SSR.txt ' + ' '+ y+' '+out +' '+out2
+        run_command(cmd)
+        myout=out+'.out'
+        cmd='less -S '+out+ ' |sort|uniq > '+myout
+        run_command(cmd)
+
 def getfastiq(x):
     global male1,male2,female1,female2
     Myproid=open('Myprogeny.id','w')
@@ -1079,8 +999,8 @@ def getfastiq(x):
         i=0
         for line in f:
             i=i+1
-            if (line.startswith("[fastq files]")):
-                flag=i
+            if (line.startswith("[files]")):
+                flag=i+1
                 break
     with open(x,'r') as f:
         f =f.readlines()[flag+2:]
@@ -1128,27 +1048,20 @@ def populationtype(p):
             run_command(cmd)
             cmd='mv ./WorkingDirectory/aaxab* ./'
             run_command(cmd)
-    cmd='mv  *.vcf *marker* ./WorkingDirectory'
-    run_command(cmd)
-    cmd='rm *.all_type  *.tab'
+    cmd='mv   *marker* ./WorkingDirectory'
     run_command(cmd)
     cmd='mv female* male*  Male* Female*   ./WorkingDirectory'
     run_command(cmd)
 def main(args):
-	global progenyID,motif,wgs
+	global progenyID,motif
 	progenyID=getfastiq("parameters.ini")
 	motif = args.motif
-	wgs = args.WGS
 	population=args.population
-	if (wgs=='True'):
-		wgs=''
-	elif(wgs=='False'):
-		wgs=' --targeted --coverage  --nonuniform '
-	
 	get_SSR(GENOME)
 	find_parent(GENOME)
 	tasks=['male','female']
-	callparent(tasks)
+	callparent(tasks[0])
+	callparent(tasks[1])
 	SSRGM(GENOME)
 	pchisq('Male_marker.out','Male_pure_pchis','Male_hybrid_pchis')
 	pchisq('Female_marker.out','Female_pure_pchis','Female_hybrid_pchis')
@@ -1158,7 +1071,7 @@ def main(args):
 	write2map('Male_pure_pchis.out','Male_marker.txt','aaxab.joinmap.txt','Male_hybrid_pchis.out','Male.abxab.joinmap.txt','Male_abxaa_Fslinkmap.txt','Male_abxab_Fslinkmap.txt')
 	write2map('Female_pure_pchis.out','Female_marker.txt','abxaa.joinmap.txt','Female_hybrid_pchis.out','Female.abxab.joinmap.txt','Female_abxaa_Fslinkmap.txt','Female_abxab_Fslinkmap.txt')
 	populationtype(population)
-
+	
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(
 		prog="python SSRGT.py",
@@ -1179,12 +1092,8 @@ Usage: python SSRGT.py  [Options]
 ''')
 	parser.add_argument(
 		'-mo', '--motif',
-		default="1=10,2=5,3=4,4=4,5=4,6=4",
-		help="set the threshold of motif, default: 1=10,2=5,3=4,4=4,5=4,6=4 \nleft  of equal : length of motif \nright of equal : the minimum number of repeat")
-	parser.add_argument(
-		'-wgs', '--WGS', 
-		default='False',
-		help="set the sequencing data type, default : False \nIf your sequencing data is RAD-seq or GBS data, you should choose '-wgs False', if it's whole genome sequencing, choose '-wgs True'")
+		default="1=11,2=5,3=4,4=4,5=4,6=4",
+		help="set the threshold of motif, default: 1=11,2=5,3=4,4=4,5=4,6=4 \nleft  of equal : length of motif \nright of equal : the minimum number of repeat")
 	parser.add_argument(
 		'-p', '--population',
 		default='CP',
@@ -1196,18 +1105,18 @@ Usage: python SSRGT.py  [Options]
         	print("\n This program needs a parameter file,namely \"parameters.ini\".\n")
         	sys.exit(' Error!Please check the parameters.ini')
 	if(os.path.isfile(GENOME)==False):
-        	sys.exit(' Error!Please check  the line of REFERENCE_GENOME in the parameters.ini')
+        	sys.exit(' Error!Please check  the line of reference genome in the parameters.ini')
 	if(os.path.isfile(bwa)==False):
         	sys.exit(' Error!Please check  the line of BWA in the parameters.ini')
 	if(os.path.isfile(samtools)==False):
         	sys.exit(' Error!Please check  the line of SAMTOOLS in the parameters.ini')
 	if(os.path.exists(parentfold)==False ):
-        	sys.exit(' Error!Please check  the line of PARENT in the parameters.ini')
+        	sys.exit(' Error!Please check  the line of RADDATA FOLD in the parameters.ini')
 	if(os.path.exists(progenyfold)):
 		if(os.path.exists(script)):
 			main(args)
 			print("All tasks done")
 		else:
-			print(' Error!Please check  the line of SCRIPT in the parameters.ini')
+			print(' Error!Please check  the line of SSRGT FOLD in the parameters.ini')
 	else:
-		print(' Error!Please check  the line of PROGENY in the parameters.ini')
+		print(' Error!Please check  the line of RADDATA FOLD in the parameters.ini')
