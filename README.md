@@ -13,8 +13,7 @@ SSRGT is a software used to genotype and SSR calling across a hybrid population 
 5. Generating input format files for the genetic mapping software JoinMap and FsLinkageMap.
 # Requirements
 To compile SSRGT, the following packages are required:
-- [BWA-men2](https://github.com/bwa-mem2/bwa-mem2)
-- [GangSTR](https://github.com/gymreklab/GangSTR)
+- [BWA-men2](https://github.com/bwa-mem2/bwa-mem2) or 
 - [SAMtools](http://samtools.sourceforge.net/)
 - [pandas](https://github.com/pandas-dev/pandas)
 - [xlwt](https://github.com/python-excel/xlwt)
