@@ -94,8 +94,13 @@ Additionally, users need to install python modules in python 3 environment, incl
                             left  of equal : length of motif
                             right of equal : the minimum number of repeat
       -p POPULATION, --population POPULATION
-                            set the population type [CP,F2,BC], default : CP
-                            If your population type  is CP or F2, you should choose 'CP' or 'F2', if it's BC population type and the    maternal parent is recurrent parent, choose 'BC:female'
+                        set the population type [CP,F2,BC], default : CP
+                        If your population type  is CP or F2, you should choose 'CP' or 'F2', if it's BC population type and the maternal parent is recurrent parent, choose 'BC:female', if it's BC population type and the paternal parent is recurrent parent, choose 'BC:male'
+      --nosearch            skip the step for searching SSR in reference sequence.
+      --nocatalog           skip the step for generating parental SSR catalogs.
+      --nomap               skip the step for mapping the progeny reads to the reference sequence.
+      --nocall              skip the step for calling  SSR genotypes for each individual.
+      --nofilter            skip the step for filtering  SSR genotype data.
 After the program has finished running, if the user wants to locate the SSR loci by reference genome，they can use the following command  in the 'script' folder. This step will facilitate functional annotation (e.g., GO, KEGG, Pfam) studies of genes containing SSRs.
 
 ```
