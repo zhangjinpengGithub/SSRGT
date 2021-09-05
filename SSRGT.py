@@ -99,52 +99,53 @@ def get_proganyID(list1,proganyID):
                 for line in f:
                         a=line.strip().split("\t")
                         list1.append(a[0])
-
+def callparent2():
+        cmd='python   '+script+'/parent_merge.py '+'-parent1 male.vcf01.txt.out -parent2 femaleallSSR_type.txt -o female.out'
+        run_command(cmd)
+        cmd='python   '+script+'/parent_merge.py '+'-parent1 female.vcf01.txt.out -parent2 maleallSSR_type.txt -o  male.out'
+        run_command(cmd)
+        cmd='less -S female.out |sort|uniq > '+'female.sort.out'
+        run_command(cmd)
+        cmd='less -S male.out |sort|uniq > '+'male.sort.out'
+        run_command(cmd)
+        df1 = pd.read_csv('female.vcf01.txt.out',sep='\t',header=None)
+        df2 = pd.read_csv('male.sort.out',sep='\t',header=None)
+        data = pd.merge(df1,df2,on=0,how="left")
+        df=data.dropna(axis=0,how='any')
+        df.to_csv('Female_marker.txt',sep='\t',header=False,index=False)
+        df1 = pd.read_csv('male.vcf01.txt.out',sep='\t',header=None)
+        df2 = pd.read_csv('female.sort.out',sep='\t',header=None)
+        data = pd.merge(df1,df2,on=0,how="left")
+        df=data.dropna(axis=0,how='any')
+        df.to_csv('Male_marker.txt',sep='\t',header=False,index=False)
+        os.remove('female.sam')
+        os.remove('male.sam')
+        os.remove('female.bam')
+        os.remove('male.bam')
+def Mapping_progeny(reader1):
+        with open(progenyID) as f:
+                for line in f:
+                        tmp = line.strip().split('\t')
+                        cmd = bwa +  ' mem  -M -t '+ str(thread)+'  -R ' +"'@RG\\tID:EV\\tPL:ILLUMINA\\tLB:EV\\tSM:EV'"+' '+reader1+' '+progenyfold+'/'+tmp[1]+' '+progenyfold+'/'+tmp[2]+' > '+tmp[0]+'.sam'
+                        run_command(cmd)
+                        cmd=samtools+" view -@ "+str(thread)+" -bS "+tmp[0]+'.sam'+" -q "+str(MAPQ)+" -o "+ tmp[0]+'.bam'
+                        run_command(cmd)
+                        cmd='java -jar -XX:ParallelGCThreads='+str(thread)+' '+PICARD+' SortSam INPUT='+tmp[0]+'.bam'+ ' OUTPUT='+tmp[0]+'.sort.bam'+' SORT_ORDER=coordinate'
+                        run_command(cmd)
+                        cmd='java -jar -XX:ParallelGCThreads='+str(thread)+' '+PICARD+' MarkDuplicates INPUT='+tmp[0]+'.sort.bam'+' OUTPUT='+tmp[0]+'.sort.dedup.bam METRICS_FILE='+tmp[0]+'.metrics ASSUME_SORTED=true VALIDATION_STRINGENCY=SILENT CREATE_INDEX=true REMOVE_DUPLICATES=true'
+                        run_command(cmd)
+                        tmpsam=tmp[0]+'.sam'
+                        tmpbam=tmp[0]+'.bam'
+                        tmpfix=tmp[0]+'.metrics'
+                        tmpfixsort=tmp[0]+'.sort.bam'
+                        os.remove(tmpsam)
+                        os.remove(tmpbam)
+                        os.remove(tmpfix)
+                        os.remove(tmpfixsort)
 def SSRGM(reader1):
-				
-	cmd='python   '+script+'/parent_merge.py '+'-parent1 male.vcf01.txt.out -parent2 femaleallSSR_type.txt -o female.out'
-	run_command(cmd)
-	cmd='python   '+script+'/parent_merge.py '+'-parent1 female.vcf01.txt.out -parent2 maleallSSR_type.txt -o  male.out'
-	run_command(cmd)
-	cmd='less -S female.out |sort|uniq > '+'female.sort.out'
-	run_command(cmd)
-	cmd='less -S male.out |sort|uniq > '+'male.sort.out'
-	run_command(cmd)
-	df1 = pd.read_csv('female.vcf01.txt.out',sep='\t',header=None)
-	df2 = pd.read_csv('male.sort.out',sep='\t',header=None)
-	data = pd.merge(df1,df2,on=0,how="left")
-	df=data.dropna(axis=0,how='any')
-	df.to_csv('Female_marker.txt',sep='\t',header=False,index=False)
-	df1 = pd.read_csv('male.vcf01.txt.out',sep='\t',header=None)
-	df2 = pd.read_csv('female.sort.out',sep='\t',header=None)
-	data = pd.merge(df1,df2,on=0,how="left")
-	df=data.dropna(axis=0,how='any')
-	df.to_csv('Male_marker.txt',sep='\t',header=False,index=False)
-		
-	os.remove('female.sam')
-	os.remove('male.sam')
-	os.remove('female.bam')
-	os.remove('male.bam')	
-		
 	with open(progenyID) as f:
 		for line in f:
 			tmp = line.strip().split('\t')
-			cmd = bwa +  ' mem  -M -t '+ str(thread)+'  -R ' +"'@RG\\tID:EV\\tPL:ILLUMINA\\tLB:EV\\tSM:EV'"+' '+reader1+' '+progenyfold+'/'+tmp[1]+' '+progenyfold+'/'+tmp[2]+' > '+tmp[0]+'.sam'
-			run_command(cmd)
-			cmd=samtools+" view -@ "+str(thread)+" -bS "+tmp[0]+'.sam'+" -q "+str(MAPQ)+" -o "+ tmp[0]+'.bam'
-			run_command(cmd)
-			cmd='java -jar -XX:ParallelGCThreads='+str(thread)+' '+PICARD+' SortSam INPUT='+tmp[0]+'.bam'+ ' OUTPUT='+tmp[0]+'.sort.bam'+' SORT_ORDER=coordinate'
-			run_command(cmd)
-			cmd='java -jar -XX:ParallelGCThreads='+str(thread)+' '+PICARD+' MarkDuplicates INPUT='+tmp[0]+'.sort.bam'+' OUTPUT='+tmp[0]+'.sort.dedup.bam METRICS_FILE='+tmp[0]+'.metrics ASSUME_SORTED=true VALIDATION_STRINGENCY=SILENT CREATE_INDEX=true REMOVE_DUPLICATES=true'
-			run_command(cmd)
-			tmpsam=tmp[0]+'.sam'
-			tmpbam=tmp[0]+'.bam'
-			tmpfix=tmp[0]+'.metrics'
-			tmpfixsort=tmp[0]+'.sort.bam'
-			os.remove(tmpsam)
-			os.remove(tmpbam)
-			os.remove(tmpfix)
-			os.remove(tmpfixsort)
 			cmd='python '+script+'/progenyGT.py '+'Female_marker.txt '+tmp[0]+'.sort.dedup.bam '+tmp[0]+'.out'
 			run_command(cmd)
 			tmout=tmp[0]+'.out'
@@ -153,28 +154,20 @@ def SSRGM(reader1):
 			run_command(cmd)
 			tmout=tmp[0]+'.out2'
 			os.remove(tmout)
-	list1 = []
-	get_proganyID(list1,progenyID)
-	df1 = pd.read_table('Male_marker.txt',header=None)
-	df1=df1.values.tolist()
-	for a in range(len(df1)):
-		strings=df1[a][0]
-		df1[a][0]=strings.split(":")[0]+':'+str(int(strings.split(":")[1])+3)
-	df1=pd.DataFrame(df1)
-	df1.to_csv('Male_marker.txt',sep='\t',header=False,index=False)
-	genetype('Male_marker.txt',list1,progenyID,'Male_marker.out')
-	
-	
-	list1 = []
-	get_proganyID(list1,progenyID)
-	df1 = pd.read_table('Female_marker.txt',header=None)
-	df1=df1.values.tolist()
-	for a in range(len(df1)):
-		strings=df1[a][0]
-		df1[a][0]=strings.split(":")[0]+':'+str(int(strings.split(":")[1])+3)
-	df1=pd.DataFrame(df1)
-	df1.to_csv('Female_marker.txt',sep='\t',header=False,index=False)
-	genetype('Female_marker.txt',list1,progenyID,'Female_marker.out')		
+	changelist('Male_marker.txt')
+	changelist('Female_marker.txt')
+	changelist('femaleallSSR_type.txt')
+	changelist('maleallSSR_type.txt')
+def changelist(x):
+        list1 = []
+        get_proganyID(list1,progenyID)
+        df1 = pd.read_table(x,header=None)
+        df1=df1.values.tolist()
+        for a in range(len(df1)):
+                strings=df1[a][0]
+                df1[a][0]=strings.split(":")[0]+':'+str(int(strings.split(":")[1])+3)
+        df1=pd.DataFrame(df1)
+        df1.to_csv(x,sep='\t',header=False,index=False)
 def genetype(x,list1,progenyID,out):
         df1 = pd.read_csv(x,header=None,sep='\t')
         df1=df1.values.tolist()
@@ -669,6 +662,12 @@ def print_out3(line_num,tmp,open3,progany_numble):
 
 
 def pchisq(x,out2,out3):
+	list1 = []
+	get_proganyID(list1,progenyID)
+	if (x=='Male_marker.out'):
+		genetype('Male_marker.txt',list1,progenyID,'Male_marker.out')
+	elif(x=='Female_marker.out'):
+		genetype('Female_marker.txt',list1,progenyID,'Female_marker.out')
 	myout2=out2+'.out'
 	myout3=out3+'.out'
 	with open (x,'r') as f:
@@ -1022,10 +1021,8 @@ def getfastiq(x):
     if(os.path.isfile('Myprogeny.id')):
         return ('./Myprogeny.id')
 def populationtype(p):
-    print(p)
+#    print(p)
     os.mkdir('./WorkingDirectory')
-    cmd='mv *.bam *.bai ./WorkingDirectory'
-    run_command(cmd)
     if (p == 'F2'):
         cmd='mv abxab* ./WorkingDirectory'    
         run_command(cmd)
@@ -1048,29 +1045,66 @@ def populationtype(p):
             run_command(cmd)
             cmd='mv ./WorkingDirectory/aaxab* ./'
             run_command(cmd)
-    cmd='mv   *marker* ./WorkingDirectory'
+    cmd='mv  *marker* ./WorkingDirectory'
     run_command(cmd)
-    cmd='mv female* male*  Male* Female*   ./WorkingDirectory'
+    cmd='mv F* M*  ./WorkingDirectory'
+    run_command(cmd)
+    if (os.path.exists('./WorkingDirectory/Female_marker.txt') and os.path.exists('./WorkingDirectory/Male_marker.txt')):
+        shutil.move('./WorkingDirectory/Female_marker.txt','./')
+        shutil.move('./WorkingDirectory/Male_marker.txt','./')
+            
+    files =os.listdir()
+    for file in files:
+        if (file.startswith('female') or file.startswith('male') ):
+            cmd='mv female* male* ./WorkingDirectory'
+            run_command(cmd)
+            break
+    files =os.listdir('./WorkingDirectory')
+    file="".join(files)
+    if (re.findall("fq",file)):
+        cmd='mv ./WorkingDirectory/*fq  ./'
+        run_command(cmd)
+    if (re.findall("allSSR_type.txt",file)):
+        cmd='mv ./WorkingDirectory/*allSSR_type.txt  ./'
+        run_command(cmd)
+
+    cmd='rm -rf ./WorkingDirectory'
     run_command(cmd)
 def main(args):
 	global progenyID,motif
 	progenyID=getfastiq("parameters.ini")
 	motif = args.motif
 	population=args.population
-	get_SSR(GENOME)
-	find_parent(GENOME)
-	tasks=['male','female']
-	callparent(tasks[0])
-	callparent(tasks[1])
-	SSRGM(GENOME)
-	pchisq('Male_marker.out','Male_pure_pchis','Male_hybrid_pchis')
-	pchisq('Female_marker.out','Female_pure_pchis','Female_hybrid_pchis')
-	ALL_type('Male_marker.txt')
-	ALL_type('Female_marker.txt')
-	get_segregation('Female_marker.txt.1','Male_marker.txt.1')
-	write2map('Male_pure_pchis.out','Male_marker.txt','aaxab.joinmap.txt','Male_hybrid_pchis.out','Male.abxab.joinmap.txt','Male_abxaa_Fslinkmap.txt','Male_abxab_Fslinkmap.txt')
-	write2map('Female_pure_pchis.out','Female_marker.txt','abxaa.joinmap.txt','Female_hybrid_pchis.out','Female.abxab.joinmap.txt','Female_abxaa_Fslinkmap.txt','Female_abxab_Fslinkmap.txt')
-	populationtype(population)
+	if (args.nosearch):
+		get_SSR(GENOME)
+	if(args.nocatalog):
+		find_parent(GENOME)
+		tasks=['male','female']
+		callparent(tasks[0])
+		callparent(tasks[1])
+		callparent2()
+	if(args.nomap):
+		Mapping_progeny(GENOME)
+	if(args.nocall):
+		SSRGM(GENOME)
+	if(args.nofilter):
+		files =os.listdir()
+		for file in files:
+			if (file.startswith('a') ):
+				cmd='rm a* '
+				run_command(cmd)
+				break
+		if (os.path.exists('./Allgenotype.txt')):
+			cmd='rm Allgenotype* '	
+			run_command(cmd)	
+		pchisq('Male_marker.out','Male_pure_pchis','Male_hybrid_pchis')
+		pchisq('Female_marker.out','Female_pure_pchis','Female_hybrid_pchis')
+		ALL_type('Male_marker.txt')
+		ALL_type('Female_marker.txt')
+		get_segregation('Female_marker.txt.1','Male_marker.txt.1')
+		write2map('Male_pure_pchis.out','Male_marker.txt','aaxab.joinmap.txt','Male_hybrid_pchis.out','Male.abxab.joinmap.txt','Male_abxaa_Fslinkmap.txt','Male_abxab_Fslinkmap.txt')
+		write2map('Female_pure_pchis.out','Female_marker.txt','abxaa.joinmap.txt','Female_hybrid_pchis.out','Female.abxab.joinmap.txt','Female_abxaa_Fslinkmap.txt','Female_abxab_Fslinkmap.txt')
+		populationtype(population)
 	
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(
@@ -1097,8 +1131,12 @@ Usage: python SSRGT.py  [Options]
 	parser.add_argument(
 		'-p', '--population',
 		default='CP',
-		help="set the population type [CP,F2,BC], default : CP \nIf your population type  is CP or F2, you should choose 'CP' or 'F2', if it's BC population type and the maternal parent is recurrent parent, choose 'BC:female'")
-
+		help="set the population type [CP,F2,BC], default : CP \nIf your population type  is CP or F2, you should choose 'CP' or 'F2', if it's BC population type and the maternal parent is recurrent parent, choose 'BC:female', if it's BC population type and the paternal parent is recurrent parent, choose 'BC:male'")
+	parser.add_argument("--nosearch", help = "skip the step for searching SSR in reference sequence.", default='True',action='store_false')
+	parser.add_argument("--nocatalog", help = "skip the step for generating parental SSR catalogs.", default='True',action='store_false')
+	parser.add_argument("--nomap", help = "skip the step for mapping the progeny reads to the reference sequence.", default='True',action='store_false')
+	parser.add_argument("--nocall", help = "skip the step for calling  SSR genotypes for each individual.", default='True',action='store_false')
+	parser.add_argument("--nofilter", help = "skip the step for filtering  SSR genotype data.", default='True',action='store_false')
 	args = parser.parse_args()
 	filename='./parameters.ini'
 	if(os.path.isfile(filename)==False):
