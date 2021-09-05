@@ -5,7 +5,7 @@ import pandas as pd
 from multiprocessing import Pool
 parser = argparse.ArgumentParser(
      description='''
-Example: python SSRlocation.py -g ../p.gff3 -s ../WorkingDirectory/femaleallSSR_type.txt -t 2 -o female.location
+Example: python SSRlocation.py -g ../p.gff3 -s ../femaleallSSR_type.txt -t 2 -o female.location
 ''')
 parser.add_argument('-g','--gff',help='Please input GFF file',required=True)
 parser.add_argument('-s','--SSR_types',help='Please input SSR_types.txt file',required=True)

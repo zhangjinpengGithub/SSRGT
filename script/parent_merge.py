@@ -23,7 +23,7 @@ y=  args.Parent2 #femaleallSSR_type.txt
 out=args.out #out 
 thread=cfg.getint("parameter","THREADS")
 def run_command(cmd):
-        print(cmd)
+       # print(cmd)
         return_code = subprocess.call(cmd, shell=True)
 
 def GMSSR(gene,motif,motif2,refmotif,mydtct0,mydtct2):
@@ -51,14 +51,12 @@ def GMSSR(gene,motif,motif2,refmotif,mydtct0,mydtct2):
 def my_samtoools(gene,motif,motif2,refmotif):
 #    global samtools
     geneout=gene+'.txt'
-    cmd=' grep  '+gene+' '+y+'>'+geneout
+    cmd=' grep  -w '+gene+' '+y+'>'+geneout
     run_command(cmd)
     with open(geneout,"r") as f2:
         lines=f2.readlines()
         flen=len(lines)
-        if (flen < 1):
-            print("wrong")
-        elif(flen >= 1):
+        if(flen >= 1):
             for line in lines:
                 tmp=line.strip().split('\t')
                 a=tmp[3].split("/")[0] 

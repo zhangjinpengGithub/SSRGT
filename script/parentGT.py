@@ -48,7 +48,7 @@ with open(x,'r') as f:
             f2.write(myout+"\n")
 
 def run_command(cmd):
-        print(cmd)
+#        print(cmd)
         return_code = subprocess.call(cmd, shell=True)
 
 def find_maxlen(s,a):
