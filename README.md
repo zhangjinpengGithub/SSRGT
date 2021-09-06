@@ -20,40 +20,56 @@ To compile SSRGT, the following packages are required:
 - perl   (version >=5.26)
 - python (version >=3.6)
 - java   (version >=1.8)
-You can do this with the following command：
 ```
+You can do this with the following command：
 conda install bwa
 conda install samtools
 pip install pandas
 pip install xlwt
 ```
 # Usage
-To run SSRGT, users should install two prerequisite packages: BWA and SAMtools.  Furthermore, an additional setting file parameter is required, namely `parameters.ini`. The parameter file contains three parts: folders, parameter and files. As the first part, ‘folders’ gives the software paths of the BWA and SAMtools. In addition, a script storage path and resequencing data path need to be provided. The second part ‘parameter’ consists of the specified mapping quality (MAPQ) threshold, the number of threads used for parallel computing, the depth of allele coverage, the minimum percentage frequency of a homozygotes, the minimum percentage frequency of a heterozygotes, the percent of the maximum missing genotypes at an SSR locus and the minimum p-value allowed for testing the segregation ratio of an SSR locus. Finally, the ‘ files’ includes reference genome file, the names of parents and progeny and the first read files and the second read files.  A typical parameter file looks as following:
+To run SSRGT, users should install two prerequisite packages: BWA and SAMtools.  Furthermore, an additional setting file parameter is required, namely `parameters.ini`. The parameter file contains three parts: folders, parameter and files. As the first part, ‘folders’ gives the software paths of the BWA and SAMtools. In addition, a script storage path and resequencing data path need to be provided. The second part ‘parameter’ consists of the specified mapping quality (MAPQ) threshold, the number of threads used for parallel computing, the depth of allele coverage, the minimum percentage frequency of a homozygotes, the minimum percentage frequency of a heterozygotes, the percent of the maximum missing genotypes at an SSR locus and the minimum p-value allowed for testing the segregation ratio of an SSR locus. Finally, the ‘data files’ includes reference genome file, the names of parents and progeny and the first read files and the second read files.  A typical parameter file looks as following:
 
-        [folders]  
-        BWA:~/bwa-0.7.15
-        SAMTOOLS:~/software/samtools-1.9
-        SSRGT FOLD:~/zjp/SSRGT
-        RADDATA FOLD:/mnt/sda/tong/yuyingxuan/zjp/exampledata
+        [folders]
+        BWA_FOLD:~/bwa-0.7.15
+        SAMTOOLS_FOLD:~/software/samtools-1.9
+        SSRGT_FOLD:/mnt/sda/tong/yuyingxuan/zjp/SSRGT
+        RADDATA_FOLD:/mnt/sda/tong/yuyingxuan/zjp/exampledata
         [parameter]
         MAPQ:30
         THREADS:30
-        Depth Of Coverage:5
-        Frequency Of Homozygotes:0.7
-        Frequency Of Heterozygotes:0.35
+        DEPTH_OF_COVERAGE:5
         PVALUE: 0.01
-        MISS GENOTYPES:0.3
-        [files]
-        reference genome:p.ref
-        male:male.R1.fq male.R2.fq
-        female:female.R1.fq female.R2.fq
-        sample01:sample01.R1.fq sample01.R2.fq
-        sample02:sample02.R1.fq sample02.R2.fq
-        sample03:sample03.R1.fq sample03.R2.fq
-        '''
-        sample18:sample18.R1.fq sample18.R2.fq
-        sample19:sample19.R1.fq sample19.R2.fq
-        sample20:sample20.R1.fq sample20.R2.fq
+        MISS_GENOTYPES:0.3
+        FREQUENCY_OF_HOMOZYGOTES:0.7
+        FREQUENCY_OF_HETEROZYGOTES:0.35
+        #When the read frequency of the major allele is more than 0.7, this locus is described
+        #as homozygous. When the read frequencies of the major and minor alleles are both more than 0.35,
+        #this locus is treated as heterozygous.
+        [data files]
+        REFERENCE_FILE:reference.fasta
+        MALE:male.R1.fq male.R2.fq
+        FEMALE:female.R1.fq female.R2.fq
+        SAMPLE01:sample01.R1.fq sample01.R2.fq
+        SAMPLE02:sample02.R1.fq sample02.R2.fq
+        SAMPLE03:sample03.R1.fq sample03.R2.fq
+        SAMPLE04:sample04.R1.fq sample04.R2.fq
+        SAMPLE05:sample05.R1.fq sample05.R2.fq
+        SAMPLE06:sample06.R1.fq sample06.R2.fq
+        SAMPLE07:sample07.R1.fq sample07.R2.fq
+        SAMPLE08:sample08.R1.fq sample08.R2.fq
+        SAMPLE09:sample09.R1.fq sample09.R2.fq
+        SAMPLE10:sample10.R1.fq sample10.R2.fq
+        SAMPLE11:sample11.R1.fq sample11.R2.fq
+        SAMPLE12:sample12.R1.fq sample12.R2.fq
+        SAMPLE13:sample13.R1.fq sample13.R2.fq
+        SAMPLE14:sample14.R1.fq sample14.R2.fq
+        SAMPLE15:sample15.R1.fq sample15.R2.fq
+        SAMPLE16:sample16.R1.fq sample16.R2.fq
+        SAMPLE17:sample17.R1.fq sample17.R2.fq
+        SAMPLE18:sample18.R1.fq sample18.R2.fq
+        SAMPLE19:sample19.R1.fq sample19.R2.fq
+        SAMPLE20:sample20.R1.fq sample20.R2.fq
  
 
 Additionally, users need to install python modules in python 3 environment, including [pandas](https://github.com/pandas-dev/pandas) and [xlwt](https://github.com/python-excel/xlwt).
@@ -101,24 +117,6 @@ Additionally, users need to install python modules in python 3 environment, incl
       --nomap               skip the step for mapping the progeny reads to the reference sequence.
       --nocall              skip the step for calling  SSR genotypes for each individual.
       --nofilter            skip the step for filtering  SSR genotype data.
-After the program has finished running, if the user wants to locate the SSR loci by reference genome，they can use the following command  in the 'script' folder. This step will facilitate functional annotation (e.g., GO, KEGG, Pfam) studies of genes containing SSRs.
-
-```
-usage: python SSRlocation.py [-h] -g GFF -s SSR_TYPES -t THREADS  -o OUT
-
-Example: python SSRlocation.py -g ../p.gff3 -s ../WorkingDirectory/femaleallSSR_type.txt 
--t 2 -o female.location
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -g GFF, --gff GFF     Please input GFF file
-  -s SSR_TYPES, --SSR_types SSR_TYPES
-                        Please input SSR_types.txt file
-  -t THREADS, --threads THREADS
-                        Please input threads
-  -o OUT, --out OUT     Please input out_put file_name
-
-```
 
 # Test Data
 
