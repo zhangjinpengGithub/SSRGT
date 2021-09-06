@@ -12,20 +12,20 @@ import xlwt
 from configparser import ConfigParser
 cfg = ConfigParser()
 cfg.read("parameters.ini")
-bwa=cfg.get("folders","BWA")
-samtools=cfg.get("folders","SAMTOOLS")+'/samtools'
+bwa=cfg.get("folders","BWA_FOLD")
+samtools=cfg.get("folders","SAMTOOLS_FOLD")+'/samtools'
 thread=cfg.getint("parameter","THREADS")
 MAPQ=cfg.getint("parameter","MAPQ")
 pvalue=cfg.get("parameter","PVALUE")
-MISPCT=cfg.get("parameter","MISS GENOTYPES")
-data_fold=cfg.get("folders","RADDATA FOLD")
-GENOME=data_fold+'/'+cfg.get("files","reference genome")
+MISPCT=cfg.get("parameter","MISS_GENOTYPES")
+data_fold=cfg.get("folders","RADDATA_FOLD")
+GENOME=data_fold+'/'+cfg.get("data files","REFERENCE_FILE")
 progenyfold=data_fold
 parentfold=data_fold
-script=cfg.get("folders","SSRGT FOLD")+'/script'
+script=cfg.get("folders","SSRGT_FOLD")+'/script'
 SSRMMD=script+'/SSRMMD.pl'
 PICARD=script+'/picard.jar'
-DP=cfg.get("parameter","Depth Of Coverage")
+DP=cfg.get("parameter","DEPTH_OF_COVERAGE")
 DP=int(DP)
 ###########################################################################################################
 Home=os.environ['HOME']
@@ -998,7 +998,7 @@ def getfastiq(x):
         i=0
         for line in f:
             i=i+1
-            if (line.startswith("[files]")):
+            if (line.startswith("[data files]")):
                 flag=i+1
                 break
     with open(x,'r') as f:
@@ -1012,10 +1012,10 @@ def getfastiq(x):
         f =f.readlines()[flag:flag+2]
         for line in f:
             line=line.strip()
-            if (line.split(":")[0]=='male'):
+            if (line.split(":")[0]=='MALE'):
                 male1=parentfold+'/'+line.split()[0].split(":")[1]
                 male2=parentfold+'/'+line.split()[1]
-            if (line.split(":")[0]=='female'):
+            if (line.split(":")[0]=='FEMALE'):
                 female1=parentfold+'/'+line.split()[0].split(":")[1]
                 female2=parentfold+'/'+line.split()[1]
     if(os.path.isfile('Myprogeny.id')):
@@ -1143,18 +1143,18 @@ Usage: python SSRGT.py  [Options]
         	print("\n This program needs a parameter file,namely \"parameters.ini\".\n")
         	sys.exit(' Error!Please check the parameters.ini')
 	if(os.path.isfile(GENOME)==False):
-        	sys.exit(' Error!Please check  the line of reference genome in the parameters.ini')
+        	sys.exit(' Error!Please check  the line of REFERENCE_FILE in the parameters.ini')
 	if(os.path.isfile(bwa)==False):
-        	sys.exit(' Error!Please check  the line of BWA in the parameters.ini')
+        	sys.exit(' Error!Please check  the line of BWA_FOLD in the parameters.ini')
 	if(os.path.isfile(samtools)==False):
-        	sys.exit(' Error!Please check  the line of SAMTOOLS in the parameters.ini')
+        	sys.exit(' Error!Please check  the line of SAMTOOLS_FOLD in the parameters.ini')
 	if(os.path.exists(parentfold)==False ):
-        	sys.exit(' Error!Please check  the line of RADDATA FOLD in the parameters.ini')
+        	sys.exit(' Error!Please check  the line of RADDATA_FOLD in the parameters.ini')
 	if(os.path.exists(progenyfold)):
 		if(os.path.exists(script)):
 			main(args)
 			print("All tasks done")
 		else:
-			print(' Error!Please check  the line of SSRGT FOLD in the parameters.ini')
+			print(' Error!Please check  the line of SSRGT_FOLD in the parameters.ini')
 	else:
-		print(' Error!Please check  the line of RADDATA FOLD in the parameters.ini')
+		print(' Error!Please check  the line of RADDATA_FOLD in the parameters.ini')
