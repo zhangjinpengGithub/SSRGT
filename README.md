@@ -82,12 +82,29 @@ Additionally, users need to install python modules in python 3 environment, incl
   
  python SSRGT.py -mo 1=10,2=6,3=5,4=5,5=5,6=4  `
  ```
-
+ In addition, you can select the population type (CP,F2,BC) with the -p parameter, If your population type  is CP or F2,
+ you can run the command in background as :
+ ```
+   python SSRGT -p CP
+   python SSRGT -p F2
+```
+ If your population type  is BC, and the maternal parent is recurrent parent, you can run the command in background as :
+ ```
+   python SSRGT -p BC:female
+ ```
+ If it's BC population type and the paternal parent is recurrent parent, you can run the command in background as :
+ ```
+   python SSRGT -p BC:male
+ ```
  Since it will take quite a few hours or even several days to finish a pratical computing, we usually run the command in background as  
 ```
   nohup python SSRGT &
 ```
-
+ It can be seen that users can perform the analytical steps independently by adding some options described as above if some prerequisite files are avaiable. For example, if the user modifies the PVALUE and MISS_GENOTYPES parameters in the parameter file, the following command can be used to perform only the fifth step.
+ ```
+ python SSRGT.py --nosearch  --nocatalog --nomap --nocall
+ ```
+ 
 
   You can run with the 'help' option (`pthon SSRGT.py -h`) to show the usage of SSRGT:
 
