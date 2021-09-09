@@ -142,7 +142,16 @@ def Mapping_progeny(reader1):
                         os.remove(tmpbam)
                         os.remove(tmpfix)
                         os.remove(tmpfixsort)
+def changemark(x):
+        df1 = pd.read_table(x,header=None)
+        df1=df1.values.tolist()
+        df1=pd.DataFrame(df1)
+        df=df1.iloc[:,[0,1,2,3,4,5,6]]
+        df.to_csv(x,sep='\t',header=False,index=False)
+
 def SSRGM(reader1):
+	changemark('Female_marker.txt')
+	changemark('Male_marker.txt')
 	with open(progenyID) as f:
 		for line in f:
 			tmp = line.strip().split('\t')
@@ -154,6 +163,7 @@ def SSRGM(reader1):
 			run_command(cmd)
 			tmout=tmp[0]+'.out2'
 			os.remove(tmout)
+	
 	changelist('Male_marker.txt')
 	changelist('Female_marker.txt')
 	changelist('femaleallSSR_type.txt')
@@ -434,12 +444,19 @@ def aaxbc(x,out2,y):
     open2.close()
     file.close()
     myout2=out2+'.out'
-    cmd='Rscript ' +script+'/aaxbc.R '+out2+' '+myout2
-    run_command(cmd)
+    with open(out2,"r") as f2:
+        lines = f2.readlines()
+        flen=len(lines)
+        if (flen > 1):
+            cmd='Rscript ' +script+'/aaxbc.R '+out2+' '+myout2
+            run_command(cmd)
     if(os.path.isfile(myout2)==True):
         file = open(myout2, "r")
         z=y+'.joinmap'
         lines = file.readlines()
+        flen=len(lines)
+        if (flen < 2):
+            return 0
         for line in lines:
             line=line.strip()
             tmp=line.split("\t")
@@ -992,6 +1009,7 @@ def callparent(i):
 
 def getfastiq(x):
     global male1,male2,female1,female2
+    
     Myproid=open('Myprogeny.id','w')
     Myproid.close()
     with open(x,'r') as f:
@@ -1018,6 +1036,7 @@ def getfastiq(x):
             if (line.split(":")[0]=='FEMALE'):
                 female1=parentfold+'/'+line.split()[0].split(":")[1]
                 female2=parentfold+'/'+line.split()[1]
+    
     if(os.path.isfile('Myprogeny.id')):
         return ('./Myprogeny.id')
 def populationtype(p):
@@ -1086,6 +1105,7 @@ def main(args):
 	if(args.nomap):
 		Mapping_progeny(GENOME)
 	if(args.nocall):
+		print("This step is calling SSR genotypes, please wait!")
 		SSRGM(GENOME)
 	if(args.nofilter):
 		files =os.listdir()
@@ -1155,6 +1175,6 @@ Usage: python SSRGT.py  [Options]
 			main(args)
 			print("All tasks done")
 		else:
-			print(' Error!Please check  the line of SSRGT_FOLD in the parameters.ini')
+			print(' Error!Please check  the line of SSRGT_FOLD in the parameters.ini. Please check if the script file directory exists.')
 	else:
 		print(' Error!Please check  the line of RADDATA_FOLD in the parameters.ini')
