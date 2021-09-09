@@ -20,7 +20,7 @@ homozygotes=float(homozygotes)
 heterozygotes=float(heterozygotes)
 major_allele=heterozygotes
 def run_command(cmd):
-    print(cmd)
+#    print(cmd)
     return_code = subprocess.call(cmd, shell=True)
 def find_maxlen(s,a):
         c=re.finditer(r'(%s)+'%(a),s)
