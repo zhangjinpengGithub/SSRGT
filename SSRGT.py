@@ -8,7 +8,6 @@ import pandas as pd
 from multiprocessing import Pool
 import time
 import os.path
-import xlwt
 from configparser import ConfigParser
 cfg = ConfigParser()
 cfg.read("parameters.ini")
@@ -24,7 +23,6 @@ progenyfold=data_fold
 parentfold=data_fold
 script=cfg.get("folders","SSRGT_FOLD")+'/script'
 SSRMMD=script+'/SSRMMD.pl'
-PICARD=script+'/picard.jar'
 DP=cfg.get("parameter","DEPTH_OF_COVERAGE")
 DP=int(DP)
 ###########################################################################################################
@@ -74,26 +72,40 @@ def get_SSR(reader1):
 					f2.write(line+"\n")
 	file.close()
 def find_parent(reader1):
-	cmd = bwa + ' index '	+reader1
-	run_command(cmd)
-	cmd = bwa +  ' mem  -M -t '+ str(thread)+'  -R ' +"'@RG\\tID:EV\\tPL:ILLUMINA\\tLB:EV\\tSM:EV'"+' '+reader1+' '+male1+' '+male2+' > male.sam'
-	run_command(cmd)
-	cmd=samtools+" view -@ "+str(thread)+" -bS male.sam -q "+str(MAPQ)+" -o  male.bam"
-	run_command(cmd)
-	cmd='java -jar -XX:ParallelGCThreads='+ str(thread)+' '+PICARD+' SortSam INPUT=male.bam OUTPUT=male.sort.bam SORT_ORDER=coordinate'
-	run_command(cmd)
-	cmd='java -jar -XX:ParallelGCThreads='+str(thread)+' '+PICARD+' MarkDuplicates INPUT=male.sort.bam OUTPUT=male.sort.dedup.bam METRICS_FILE=male_dedup.metrics ASSUME_SORTED=true VALIDATION_STRINGENCY=SILENT CREATE_INDEX=true REMOVE_DUPLICATES=true'
-	run_command(cmd)
-	cmd = bwa +  ' mem  -M -t '+ str(thread)+'  -R ' +"'@RG\\tID:EV\\tPL:ILLUMINA\\tLB:EV\\tSM:EV'"+' '+reader1+' '+female1+' '+female2+' > female.sam'
-	run_command(cmd)
-	cmd=samtools+" view -@ "+str(thread)+" -bS female.sam -q "+str(MAPQ)+" -o  female.bam"
-	run_command(cmd)
-	cmd='java -jar -XX:ParallelGCThreads='+str(thread)+' '+PICARD+' SortSam INPUT=female.bam OUTPUT=female.sort.bam SORT_ORDER=coordinate'
-	run_command(cmd)
-	cmd='java -jar -XX:ParallelGCThreads='+str(thread)+' '+PICARD+' MarkDuplicates INPUT=female.sort.bam OUTPUT=female.sort.dedup.bam METRICS_FILE=female_dedup.metrics ASSUME_SORTED=true VALIDATION_STRINGENCY=SILENT CREATE_INDEX=true REMOVE_DUPLICATES=true'
-	run_command(cmd)
-
-	
+        cmd = bwa + ' index '	+reader1
+        run_command(cmd)
+        cmd = bwa +  ' mem  -M  '+reader1+' '+male1+' '+male2+' > male.sam'
+        run_command(cmd)
+        cmd=samtools+" sort -@ "+str(thread)+" -n -o male.sam.sorted male.sam"
+        run_command(cmd)
+        cmd=samtools+" fixmate -@ "+str(thread)+" -m male.sam.sorted male.sorted.fixmate"
+        run_command(cmd)
+        cmd=samtools+" sort  -@ "+str(thread)+" -o male.sorted.fixmate1 male.sorted.fixmate"
+        run_command(cmd)
+        cmd=samtools+" markdup -@ "+str(thread)+"  -r male.sorted.fixmate1 male.sorted.position.markdup"
+        run_command(cmd)
+        cmd=samtools+" view -@ "+str(thread)+" -b -S male.sorted.position.markdup -q "+str(MAPQ)+" >  male.bam"
+        run_command(cmd)
+        cmd=samtools+' sort  -@ '+str(thread)+' male.bam >male.sort.dedup.bam'
+        run_command(cmd)
+        cmd=samtools+' index  male.sort.dedup.bam'
+        run_command(cmd)
+        cmd = bwa +  ' mem  -M  '+reader1+' '+female1+' '+female2+' > female.sam'
+        run_command(cmd)
+        cmd=samtools+" sort -@ "+str(thread)+" -n -o female.sam.sorted female.sam"
+        run_command(cmd)
+        cmd=samtools+" fixmate -@ "+str(thread)+" -m female.sam.sorted female.sorted.fixmate"
+        run_command(cmd)
+        cmd=samtools+" sort  -@ "+str(thread)+" -o female.sorted.fixmate1 female.sorted.fixmate"
+        run_command(cmd)
+        cmd=samtools+" markdup -@ "+str(thread)+"  -r female.sorted.fixmate1 female.sorted.position.markdup"
+        run_command(cmd)
+        cmd=samtools+" view -@ "+str(thread)+" -b -S female.sorted.position.markdup -q "+str(MAPQ)+" >  female.bam"
+        run_command(cmd)
+        cmd=samtools+' sort  -@ '+str(thread)+' female.bam >female.sort.dedup.bam'
+        run_command(cmd)
+        cmd=samtools+' index  female.sort.dedup.bam'
+        run_command(cmd)
 def get_proganyID(list1,proganyID):
         with open(proganyID) as f:
                 for line in f:
@@ -118,30 +130,60 @@ def callparent2():
         data = pd.merge(df1,df2,on=0,how="left")
         df=data.dropna(axis=0,how='any')
         df.to_csv('Male_marker.txt',sep='\t',header=False,index=False)
-        os.remove('female.sam')
-        os.remove('male.sam')
-        os.remove('female.bam')
-        os.remove('male.bam')
-def Mapping_progeny(reader1):
-        with open(progenyID) as f:
+
+def Mapping_Pool():
+    df=pd.read_csv(progenyID,sep='\t',header=None)
+    len_df=len(df)
+    if(len_df<thread):
+        mythread=len_df
+    else:
+        mythread=thread
+    numble=int(len_df/mythread)
+    gtrd=pd.read_csv(progenyID,chunksize=numble,sep='\t',header=None)
+    a=0
+    order=[]
+    for i in gtrd :
+        a=a+1
+        order.append(str(a)+'.tmptxt')
+        i.to_csv(f"{str(a)}.tmptxt",sep='\t',header=None,index=False)
+    p=Pool(mythread)
+    p.map(Mapping_progeny,order)
+    p.close()
+    p.join()
+    for a in order:
+        os.remove(a)
+def Mapping_progeny(i):
+        with open(i) as f:
                 for line in f:
                         tmp = line.strip().split('\t')
-                        cmd = bwa +  ' mem  -M -t '+ str(thread)+'  -R ' +"'@RG\\tID:EV\\tPL:ILLUMINA\\tLB:EV\\tSM:EV'"+' '+reader1+' '+progenyfold+'/'+tmp[1]+' '+progenyfold+'/'+tmp[2]+' > '+tmp[0]+'.sam'
+                        cmd = bwa +  ' mem  -M  '+GENOME+' '+progenyfold+'/'+tmp[1]+' '+progenyfold+'/'+tmp[2]+' > '+tmp[0]+'.sam'
                         run_command(cmd)
-                        cmd=samtools+" view -@ "+str(thread)+" -bS "+tmp[0]+'.sam'+" -q "+str(MAPQ)+" -o "+ tmp[0]+'.bam'
+                        cmd=samtools+' sort  '+' -n -o '+tmp[0]+'.sam'+'.sorted '+tmp[0]+'.sam'
                         run_command(cmd)
-                        cmd='java -jar -XX:ParallelGCThreads='+str(thread)+' '+PICARD+' SortSam INPUT='+tmp[0]+'.bam'+ ' OUTPUT='+tmp[0]+'.sort.bam'+' SORT_ORDER=coordinate'
+                        cmd=samtools+' fixmate  '+' -m '+tmp[0]+'.sam'+'.sorted '+tmp[0]+'.sorted.fixmate'
                         run_command(cmd)
-                        cmd='java -jar -XX:ParallelGCThreads='+str(thread)+' '+PICARD+' MarkDuplicates INPUT='+tmp[0]+'.sort.bam'+' OUTPUT='+tmp[0]+'.sort.dedup.bam METRICS_FILE='+tmp[0]+'.metrics ASSUME_SORTED=true VALIDATION_STRINGENCY=SILENT CREATE_INDEX=true REMOVE_DUPLICATES=true'
+                        cmd=samtools+' sort   '+' -o '+tmp[0]+'.sorted.fixmate1 '+tmp[0]+'.sorted.fixmate'
+                        run_command(cmd)
+                        cmd=samtools+' markdup  '+' -r '+tmp[0]+'.sorted.fixmate1 '+tmp[0]+'.sorted.position.markdup'
+                        run_command(cmd)
+                        cmd=samtools+' view  '+' -b -S -q '+str(MAPQ)+' '+tmp[0]+'.sorted.position.markdup'+' -o '+tmp[0]+'.bam'
+                        run_command(cmd)
+                        cmd=samtools+' sort   '+tmp[0]+'.bam'+' >'+tmp[0]+'.sort.dedup.bam'
+                        run_command(cmd)
+                        cmd=samtools+' index  ' +tmp[0]+'.sort.dedup.bam'
                         run_command(cmd)
                         tmpsam=tmp[0]+'.sam'
                         tmpbam=tmp[0]+'.bam'
-                        tmpfix=tmp[0]+'.metrics'
-                        tmpfixsort=tmp[0]+'.sort.bam'
+                        tmpfix=tmp[0]+'.sam'+'.sorted'
+                        tmpfixsort=tmp[0]+'.sorted.fixmate'
+                        tmpfixsort1=tmp[0]+'.sorted.fixmate1'
+                        tmp1=tmp[0]+'.sorted.position.markdup'
+                        os.remove(tmp1)
                         os.remove(tmpsam)
                         os.remove(tmpbam)
                         os.remove(tmpfix)
                         os.remove(tmpfixsort)
+                        os.remove(tmpfixsort1)
 def changemark(x):
         df1 = pd.read_table(x,header=None)
         df1=df1.values.tolist()
@@ -738,10 +780,8 @@ def ALL_type(y):
 	df1.columns=list3
 	if (y=='Male_marker.txt'):
 		df1.to_csv('Male_marker.txt.1',sep='\t',header=False,index=False)
-		df1.to_excel("./Male_alltype.xls", index=False)
 	elif(y=='Female_marker.txt'):
 		df1.to_csv('Female_marker.txt.1',sep='\t',header=False,index=False)
-		df1.to_excel("./Female_alltype.xls", index=False)
 
 def change(s,a):
     c=re.finditer(r'(%s)+'%(a),s)
@@ -968,15 +1008,6 @@ def get_segregation(x,y):
     for i in ["aaxab.txt","aaxbc.txt","abxaa.txt","abxab.txt","abxac.txt","abxcc.txt","abxcd.txt"]:
         if (os.path.getsize(i)==0):
             os.remove(i)
-    list1 = []
-    get_proganyID(list1,progenyID)
-    df1 = pd.read_csv('Allgenotype.txt',header=None,sep='\t')
-    df1=df1.values.tolist()
-    df1=pd.DataFrame(df1)
-    namelist=['SSR_site','Ref_SSR_type','Number','Female','Female_segregation_type','Male','Male_segregation_type',]
-    list1=namelist+list1
-    df1.columns=list1
-    df1.to_excel('Allgenotype.xls', index=False,header=True)
     chang_head('Allgenotype.txt')
     list1 = []
     get_proganyID(list1,progenyID)
@@ -1067,21 +1098,24 @@ def populationtype(p):
         cmd='mv ./WorkingDirectory/abxab* ./'
         run_command(cmd)
     elif(p.split(':')[0] == 'BC'):
-        if (p.split(':')[1] == 'male'):
-            cmd='mv abxaa* ./WorkingDirectory'
-            run_command(cmd)
-            cmd='rm a* '
-            run_command(cmd)
-            cmd='mv ./WorkingDirectory/abxaa* ./'
-            run_command(cmd)
-        elif(p.split(':')[1] == 'female'):
-            cmd='mv aaxab* ./WorkingDirectory'
-            run_command(cmd)
-            cmd='rm a* '
-            run_command(cmd)
-            cmd='mv ./WorkingDirectory/aaxab* ./'
-            run_command(cmd)
-    cmd='mv  *marker* ./WorkingDirectory'
+        if(p=='BC:female' or p=='BC:male'):
+            if (p.split(':')[1] == 'male'):
+                cmd='mv abxaa* ./WorkingDirectory'
+                run_command(cmd)
+                cmd='rm a* '
+                run_command(cmd)
+                cmd='mv ./WorkingDirectory/abxaa* ./'
+                run_command(cmd)
+            elif(p.split(':')[1] == 'female'):
+                cmd='mv aaxab* ./WorkingDirectory'
+                run_command(cmd)
+                cmd='rm a* '
+                run_command(cmd)
+                cmd='mv ./WorkingDirectory/aaxab* ./'
+                run_command(cmd)
+        else:
+            sys.exit(' Error!Please input BC:female or BC:male')
+    cmd='mv  *marker*   ./WorkingDirectory'
     run_command(cmd)
     cmd='mv F* M*  ./WorkingDirectory'
     run_command(cmd)
@@ -1100,12 +1134,45 @@ def populationtype(p):
     if (re.findall("fq",file)):
         cmd='mv ./WorkingDirectory/*fq  ./'
         run_command(cmd)
-    if (re.findall("allSSR_type.txt",file)):
-        cmd='mv ./WorkingDirectory/*allSSR_type.txt  ./'
-        run_command(cmd)
-
     cmd='rm -rf ./WorkingDirectory'
     run_command(cmd)
+
+def filter(population):
+        if (population == 'CP' or population == 'F2'or population == 'BC:female' or  population == 'BC:male'):
+                if(os.path.isfile('SSR.txt')==False):
+                        sys.exit(' Error!Please do not execute the --nosearch command,this step cannot be skipped now.')
+                if(os.path.isfile('Female_marker.txt')==False or os.path.isfile('Male_marker.txt')==False):
+                        sys.exit(' Error!Please do not execute the --nocatalog command,this step cannot be skipped now.')
+                flag1=0
+                with open(progenyID,'r') as f:
+                        for line in f:
+                                flag1=flag1+1
+                                if(os.path.isfile(line.split('\t')[0]+'.sort.dedup.bam')==False ):
+                                        sys.exit(' Error!Please do not execute the --nomap command,this step cannot be skipped now.')
+                df1 = pd.read_table('Male_marker.txt',header=None)
+                df1=df1.values.tolist()
+                df1=pd.DataFrame(df1)
+                if (df1.shape[1]<8):
+                        sys.exit(' Error!Please do not execute the --nocall command,this step cannot be skipped now.')
+                files =os.listdir()
+                for file in files:
+                        if (file.startswith('a') ):
+                                cmd='rm a* '
+                                run_command(cmd)
+                                break
+                if (os.path.exists('./Allgenotype.txt')):
+                        cmd='rm Allgenotype* '
+                        run_command(cmd)
+                pchisq('Male_marker.out','Male_pure_pchis','Male_hybrid_pchis')
+                pchisq('Female_marker.out','Female_pure_pchis','Female_hybrid_pchis')
+                ALL_type('Male_marker.txt')
+                ALL_type('Female_marker.txt')
+                get_segregation('Female_marker.txt.1','Male_marker.txt.1')
+                write2map('Male_pure_pchis.out','Male_marker.txt','aaxab.joinmap.txt','Male_hybrid_pchis.out','Male.abxab.joinmap.txt','Male_abxaa_Fslinkmap.txt','Male_abxab_Fslinkmap.txt')
+                write2map('Female_pure_pchis.out','Female_marker.txt','abxaa.joinmap.txt','Female_hybrid_pchis.out','Female.abxab.joinmap.txt','Female_abxaa_Fslinkmap.txt','Female_abxab_Fslinkmap.txt')
+                populationtype(population)
+
+
 def main(args):
 	global progenyID,motif
 	progenyID=getfastiq("parameters.ini")
@@ -1114,34 +1181,30 @@ def main(args):
 	if (args.nosearch):
 		get_SSR(GENOME)
 	if(args.nocatalog):
+		if(os.path.isfile('SSR.txt')==False):
+			sys.exit(' Error!Please do not execute the --nosearch command,this step cannot be skipped now.')
 		find_parent(GENOME)
 		tasks=['male','female']
+		print("This step is calling SSR genotypes for the parents, please wait!")
 		callparent(tasks[0])
 		callparent(tasks[1])
 		callparent2()
 	if(args.nomap):
-		Mapping_progeny(GENOME)
+		Mapping_Pool()
 	if(args.nocall):
-		print("This step is calling SSR genotypes, please wait!")
+		if(os.path.isfile('Female_marker.txt')==False or os.path.isfile('Male_marker.txt')==False):
+			sys.exit(' Error!Please do not execute the --nocatalog command,this step cannot be skipped now.')
+		with open(progenyID,'r') as f:
+			for line in f:
+				if(os.path.isfile(line.split('\t')[0]+'.sort.dedup.bam')==False ):
+					sys.exit(' Error!Please do not execute the --nomap command,this step cannot be skipped now.')
+		print("This step is calling SSR genotypes for the progeny, please wait!")
 		SSRGM(GENOME)
 	if(args.nofilter):
-		files =os.listdir()
-		for file in files:
-			if (file.startswith('a') ):
-				cmd='rm a* '
-				run_command(cmd)
-				break
-		if (os.path.exists('./Allgenotype.txt')):
-			cmd='rm Allgenotype* '	
-			run_command(cmd)	
-		pchisq('Male_marker.out','Male_pure_pchis','Male_hybrid_pchis')
-		pchisq('Female_marker.out','Female_pure_pchis','Female_hybrid_pchis')
-		ALL_type('Male_marker.txt')
-		ALL_type('Female_marker.txt')
-		get_segregation('Female_marker.txt.1','Male_marker.txt.1')
-		write2map('Male_pure_pchis.out','Male_marker.txt','aaxab.joinmap.txt','Male_hybrid_pchis.out','Male.abxab.joinmap.txt','Male_abxaa_Fslinkmap.txt','Male_abxab_Fslinkmap.txt')
-		write2map('Female_pure_pchis.out','Female_marker.txt','abxaa.joinmap.txt','Female_hybrid_pchis.out','Female.abxab.joinmap.txt','Female_abxaa_Fslinkmap.txt','Female_abxab_Fslinkmap.txt')
-		populationtype(population)
+		if (population == 'CP' or population == 'F2'or population == 'BC:female' or  population == 'BC:male'):
+			filter(population)
+		else:
+			sys.exit(' Error!Please input population type [CP,F2,BC:female,BC:male]')
 	
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(
@@ -1168,7 +1231,7 @@ Usage: python SSRGT.py  [Options]
 	parser.add_argument(
 		'-p', '--population',
 		default='CP',
-		help="set the population type [CP,F2,BC], default : CP \nIf your population type  is CP or F2, you should choose 'CP' or 'F2', if it's BC population type and the maternal parent is recurrent parent, choose 'BC:female', if it's BC population type and the paternal parent is recurrent parent, choose 'BC:male'")
+		help="set the population type [CP,F2,BC:female,BC:male], default : CP \nIf your population type  is CP or F2, you should choose 'CP' or 'F2', if it's BC population type and the maternal parent is recurrent parent, choose 'BC:female', if it's BC population type and the paternal parent is recurrent parent, choose 'BC:male'")
 	parser.add_argument("--nosearch", help = "skip the step for searching SSR in reference sequence.", default='True',action='store_false')
 	parser.add_argument("--nocatalog", help = "skip the step for generating parental SSR catalogs.", default='True',action='store_false')
 	parser.add_argument("--nomap", help = "skip the step for mapping the progeny reads to the reference sequence.", default='True',action='store_false')

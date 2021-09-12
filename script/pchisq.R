@@ -3,6 +3,7 @@
 args = commandArgs(trailingOnly = TRUE)
 pure_pchis=args[1]
 hybrid_pchis=args[2]
+if (file.exists(pure_pchis)){
 x <- read.table(pure_pchis,header=FALSE)
 x=as.matrix(x)
 y=matrix(1:nrow(x),ncol=1)
@@ -16,7 +17,11 @@ for(i in 1:nrow(x)){
     x[i,5] <- 1 - pchisq(x2,1)
 }
 write.table(x,args[3],quote = FALSE,row.names=F,col.names=F,sep="\t")
+}else{
+print("No SSR genotypes are found that fit Mendelian segregation ratios for abxaa or aaxab.")
+}
 ###hybrid_pchis
+if (file.exists(hybrid_pchis)){
 x <- read.table(hybrid_pchis,header=FALSE)
 x=as.matrix(x)
 y=matrix(1:nrow(x),ncol=1)
@@ -30,6 +35,9 @@ for(i in 1:nrow(x)){
     x[i,6] <- 1 - pchisq(x2,2)
 }
 write.table(x,args[4],quote = FALSE,row.names=F,col.names=F,sep="\t")
+}else{
+print("No SSR genotypes are found that fit Mendelian segregation ratios for abxab.")
+}
 
 
 

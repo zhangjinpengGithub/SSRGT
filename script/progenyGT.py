@@ -141,7 +141,7 @@ def callSSR(i):
 def main():
     df=pd.read_csv(x,sep='\t',header=None)
     len_df=len(df)
-    numble=int(len_df/thread) #thread=20
+    numble=int(len_df/thread) 
     gtrd=pd.read_csv(x,chunksize=numble,sep='\t',header=None)
     a=0
     order=[]

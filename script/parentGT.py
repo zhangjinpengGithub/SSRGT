@@ -56,7 +56,6 @@ def find_maxlen(s,a):
         find_maxlist=[]
         for i in c:
                 find_maxlist.append(i.group())
- #       print(find_maxlist) ###
         if (len(find_maxlist)==1 ):
             str2=max(find_maxlist,key=len, default='')
             return (str2)
@@ -79,10 +78,7 @@ def ssr(line,ref_end,motif_str):
     len_a=ref_end-ref_start
     if (" " not in a and len(re.findall(r"[A,T,C,G,*]",a))==len_a and a.count(motif_str)!=0 and a.count(',')==0):
         a=a.replace("*","") ###b.rep->a.rep
-    #    print (a)
         str2=find_maxlen(a,motif_str)
-#example: a=ATATCTATATAT motif_str=AT  return ATATCTATATAT
-
         return (str2)
     else:
         return(0)
@@ -125,11 +121,7 @@ def SSRprint(motif_str,gene,motif_repeat,motif):
                     dict.update({item:order.count(item)})
                 dict={k:v for k, v in dict.items() if v>=3}
                 dict=sorted(dict.items(),key=lambda x:x[1],reverse=True)
-                #order by value , reverse=True is from  largest to smallest
                 my_dtct=str(dict).strip('{}[]').replace("\'", "").replace("(", "").replace(")", "")
-           #     print(my_dtct) # 4, 27, 5, 20, 3, 1  #AT(4) 27 ,AT(5) 20
-           #     print(re.findall(r"[A,T,C,G]",my_dtct))
-#TCTCTCTCTCTCTCTCTCTCTC, 8, TCTCTCTCTCTCTCGCTCTCTCTC, 6, TCTCTCGCTCTCTCTC, 2, TCTCTCTCTCTCTCTCTCTC, 1
                 gene_rep=gene.replace(".txt", "")
                 if (len(dict)!=0):
                     first=int(my_dtct.split(",")[1])
@@ -181,7 +173,7 @@ def main():
     x='my_id'
     df=pd.read_csv(x,sep='\t',header=None)
     len_df=len(df)
-    numble=int(len_df/thread) #thread=20
+    numble=int(len_df/thread) 
     gtrd=pd.read_csv(x,chunksize=numble,sep='\t',header=None)
     a=0
     order=[]
