@@ -186,7 +186,12 @@ def Mapping_progeny(i):
                         os.remove(tmpfixsort1)
 def changemark(x):
         df1 = pd.read_table(x,header=None)
+        flag=df1.shape[1]
         df1=df1.values.tolist()
+        if (flag>7):
+            for a in range(len(df1)):
+                strings=df1[a][0]
+                df1[a][0]=strings.split(":")[0]+':'+str(int(strings.split(":")[1])-3)
         df1=pd.DataFrame(df1)
         df=df1.iloc[:,[0,1,2,3,4,5,6]]
         df.to_csv(x,sep='\t',header=False,index=False)
@@ -208,8 +213,6 @@ def SSRGM(reader1):
 	
 	changelist('Male_marker.txt')
 	changelist('Female_marker.txt')
-	changelist('femaleallSSR_type.txt')
-	changelist('maleallSSR_type.txt')
 def changelist(x):
         list1 = []
         get_proganyID(list1,progenyID)
