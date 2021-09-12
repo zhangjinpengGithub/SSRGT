@@ -16,16 +16,13 @@ To compile SSRGT, the following packages are required:
 - [BWA-men2](https://github.com/bwa-mem2/bwa-mem2)  or  [BWA](https://github.com/lh3/bwa)
 - [SAMtools](http://samtools.sourceforge.net/)
 - [pandas](https://github.com/pandas-dev/pandas)
-- [xlwt](https://github.com/python-excel/xlwt)
 - perl   (version >=5.26)
 - python (version >=3.6)
-- java   (version >=1.8)
 ```
 You can do this with the following command：
 conda install bwa
 conda install samtools
 pip install pandas
-pip install xlwt
 ```
 # Usage
 To run SSRGT, users should install two prerequisite packages: BWA and SAMtools.  Furthermore, an additional setting file parameter is required, namely `parameters.ini`. The parameter file contains three parts: folders, parameter and files. As the first part, ‘folders’ gives the software paths of the BWA and SAMtools. In addition, a script storage path and resequencing data path need to be provided. The second part ‘parameter’ consists of the specified mapping quality (MAPQ) threshold, the number of threads used for parallel computing, the depth of allele coverage, the minimum percentage frequency of a homozygotes, the minimum percentage frequency of a heterozygotes, the percent of the maximum missing genotypes at an SSR locus and the minimum p-value allowed for testing the segregation ratio of an SSR locus. Finally, the ‘data files’ includes reference genome file, the names of parents and progeny and the first read files and the second read files.  A typical parameter file looks as following:
@@ -72,7 +69,7 @@ To run SSRGT, users should install two prerequisite packages: BWA and SAMtools. 
         SAMPLE20:sample20.R1.fq sample20.R2.fq
  
 
-Additionally, users need to install python modules in python 3 environment, including [pandas](https://github.com/pandas-dev/pandas) and [xlwt](https://github.com/python-excel/xlwt).
+Additionally, users need to install python modules [pandas](https://github.com/pandas-dev/pandas) in python 3 environment.
 
   When the required software packages are installed and the parameter file is parepared and saved in a work directory, you can go to the work directory and get started with the command:  
  ```
@@ -127,7 +124,7 @@ Additionally, users need to install python modules in python 3 environment, incl
                             left  of equal : length of motif
                             right of equal : the minimum number of repeat
       -p POPULATION, --population POPULATION
-                        set the population type [CP,F2,BC], default : CP
+                        set the population type [CP,F2,BC:female,BC:male], default : CP
                         If your population type  is CP or F2, you should choose 'CP' or 'F2', if it's BC population type and the maternal parent is recurrent parent, choose 'BC:female', if it's BC population type and the paternal parent is recurrent parent, choose 'BC:male'
       --nosearch            skip the step for searching SSR in reference sequence.
       --nocatalog           skip the step for generating parental SSR catalogs.
