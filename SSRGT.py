@@ -984,7 +984,6 @@ def get_segregation(x,y):
 
     f.close()
     if(os.path.isfile('aaxbc.txt')==True):
-
         df1 = pd.read_csv('aaxbc.txt',header=None,sep='\t')
         list1=df1.values.tolist()
         for i in range(len(list1)):
@@ -992,26 +991,6 @@ def get_segregation(x,y):
             list1[i][6]='bc'
         df1=pd.DataFrame(list1)
         df1.to_csv('aaxbc.txt',sep='\t',header=False,index=False)
-    fd = open("aaxab.txt",'a+')
-    fd.close()
-    fd = open("aaxbc.txt",'a+')
-    fd.close()
-    fd = open("abxaa.txt",'a+')
-    fd.close()
-    fd = open("abxab.txt",'a+')
-    fd.close()
-    fd = open("abxac.txt",'a+')
-    fd.close()
-    fd = open("abxcc.txt",'a+')
-    fd.close()
-    fd = open("abxcd.txt",'a+')
-    fd.close()
-    cmd='cat aaxab.txt aaxbc.txt abxaa.txt abxab.txt abxac.txt abxcc.txt abxcd.txt >>Allgenotype.txt'
-    run_command(cmd)
-    for i in ["aaxab.txt","aaxbc.txt","abxaa.txt","abxab.txt","abxac.txt","abxcc.txt","abxcd.txt"]:
-        if (os.path.getsize(i)==0):
-            os.remove(i)
-    chang_head('Allgenotype.txt')
     list1 = []
     get_proganyID(list1,progenyID)
     if(os.path.isfile('abxaa.txt')==True):
@@ -1163,9 +1142,6 @@ def filter(population):
                                 cmd='rm a* '
                                 run_command(cmd)
                                 break
-                if (os.path.exists('./Allgenotype.txt')):
-                        cmd='rm Allgenotype* '
-                        run_command(cmd)
                 pchisq('Male_marker.out','Male_pure_pchis','Male_hybrid_pchis')
                 pchisq('Female_marker.out','Female_pure_pchis','Female_hybrid_pchis')
                 ALL_type('Male_marker.txt')
