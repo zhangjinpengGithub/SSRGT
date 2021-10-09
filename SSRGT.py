@@ -76,33 +76,33 @@ def find_parent(reader1):
         run_command(cmd)
         cmd = bwa +  ' mem  -M  '+reader1+' '+male1+' '+male2+' > male.sam'
         run_command(cmd)
-        cmd=samtools+" sort -@ "+str(thread)+" -n -o male.sam.sorted male.sam"
+        cmd=samtools+" sort  "+" -n -o male.sam.sorted male.sam"
         run_command(cmd)
-        cmd=samtools+" fixmate -@ "+str(thread)+" -m male.sam.sorted male.sorted.fixmate"
+        cmd=samtools+" fixmate  "+" -m male.sam.sorted male.sorted.fixmate"
         run_command(cmd)
-        cmd=samtools+" sort  -@ "+str(thread)+" -o male.sorted.fixmate1 male.sorted.fixmate"
+        cmd=samtools+" sort   "+" -o male.sorted.fixmate1 male.sorted.fixmate"
         run_command(cmd)
-        cmd=samtools+" markdup -@ "+str(thread)+"  -r male.sorted.fixmate1 male.sorted.position.markdup"
+        cmd=samtools+" markdup  "+"  -r male.sorted.fixmate1 male.sorted.position.markdup"
         run_command(cmd)
-        cmd=samtools+" view -@ "+str(thread)+" -b -S male.sorted.position.markdup -q "+str(MAPQ)+" >  male.bam"
+        cmd=samtools+" view  "+" -b -S male.sorted.position.markdup -q "+str(MAPQ)+" >  male.bam"
         run_command(cmd)
-        cmd=samtools+' sort  -@ '+str(thread)+' male.bam >male.sort.dedup.bam'
+        cmd=samtools+' sort   '+' male.bam >male.sort.dedup.bam'
         run_command(cmd)
         cmd=samtools+' index  male.sort.dedup.bam'
         run_command(cmd)
         cmd = bwa +  ' mem  -M  '+reader1+' '+female1+' '+female2+' > female.sam'
         run_command(cmd)
-        cmd=samtools+" sort -@ "+str(thread)+" -n -o female.sam.sorted female.sam"
+        cmd=samtools+" sort  "+" -n -o female.sam.sorted female.sam"
         run_command(cmd)
-        cmd=samtools+" fixmate -@ "+str(thread)+" -m female.sam.sorted female.sorted.fixmate"
+        cmd=samtools+" fixmate  "+" -m female.sam.sorted female.sorted.fixmate"
         run_command(cmd)
-        cmd=samtools+" sort  -@ "+str(thread)+" -o female.sorted.fixmate1 female.sorted.fixmate"
+        cmd=samtools+" sort   "+" -o female.sorted.fixmate1 female.sorted.fixmate"
         run_command(cmd)
-        cmd=samtools+" markdup -@ "+str(thread)+"  -r female.sorted.fixmate1 female.sorted.position.markdup"
+        cmd=samtools+" markdup  "+"  -r female.sorted.fixmate1 female.sorted.position.markdup"
         run_command(cmd)
-        cmd=samtools+" view -@ "+str(thread)+" -b -S female.sorted.position.markdup -q "+str(MAPQ)+" >  female.bam"
+        cmd=samtools+" view  "+" -b -S female.sorted.position.markdup -q "+str(MAPQ)+" >  female.bam"
         run_command(cmd)
-        cmd=samtools+' sort  -@ '+str(thread)+' female.bam >female.sort.dedup.bam'
+        cmd=samtools+' sort   '+' female.bam >female.sort.dedup.bam'
         run_command(cmd)
         cmd=samtools+' index  female.sort.dedup.bam'
         run_command(cmd)
