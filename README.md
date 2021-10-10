@@ -18,7 +18,6 @@ To compile SSRGT, the following packages are required:
 - [pandas](https://github.com/pandas-dev/pandas)
 - perl   (version >=5.26)
 - python (version >=3.6)
-- R  (version >=3.6)
 ```
 You can do this with the following command：
 conda install bwa
