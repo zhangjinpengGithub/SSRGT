@@ -16,6 +16,7 @@ To compile SSRGT, the following packages are required:
 - [BWA-men2](https://github.com/bwa-mem2/bwa-mem2)  or  [BWA](https://github.com/lh3/bwa)
 - [SAMtools](http://samtools.sourceforge.net/)
 - [pandas](https://github.com/pandas-dev/pandas)
+- scipy
 - perl   (version >=5.26)
 - python (version >=3.6)
 ```
@@ -23,6 +24,7 @@ You can do this with the following command：
 conda install bwa
 conda install samtools
 pip install pandas
+pip install scipy
 ```
 # Usage
 To run SSRGT, users should install two prerequisite packages: BWA and SAMtools.  Furthermore, an additional setting file parameter is required, namely `parameters.ini`. The parameter file contains three parts: folders, parameter and files. As the first part, ‘folders’ gives the software paths of the BWA and SAMtools. In addition, a script storage path and resequencing data path need to be provided. The second part ‘parameter’ consists of the specified mapping quality (MAPQ) threshold, the number of threads used for parallel computing, the depth of allele coverage, the minimum percentage frequency of a homozygotes, the minimum percentage frequency of a heterozygotes, the percent of the maximum missing genotypes at an SSR locus and the minimum p-value allowed for testing the segregation ratio of an SSR locus. Finally, the ‘data files’ includes reference genome file, the names of parents and progeny and the first read files and the second read files.  A typical parameter file looks as following:
