@@ -5,6 +5,7 @@ import argparse
 import shutil
 import re
 import pandas as pd
+from scipy import stats
 from multiprocessing import Pool
 import time
 import os.path
@@ -430,7 +431,7 @@ def abxac(x,out2,y):
         lines = f2.readlines()
         flen=len(lines)
         if (flen > 1):
-            cmd='Rscript ' +script+'/abxcd.R '+out2+' '+myout2
+            cmd='python ' +script+'/abxcd.py '+out2+' '+myout2
             run_command(cmd)
     if(os.path.isfile(myout2)==True):
         file = open(myout2, "r")
@@ -493,7 +494,7 @@ def aaxbc(x,out2,y):
         lines = f2.readlines()
         flen=len(lines)
         if (flen > 1):
-            cmd='Rscript ' +script+'/aaxbc.R '+out2+' '+myout2
+            cmd='python ' +script+'/aaxbc.py '+out2+' '+myout2
             run_command(cmd)
     if(os.path.isfile(myout2)==True):
         file = open(myout2, "r")
@@ -751,7 +752,7 @@ def pchisq(x,out2,out3):
 	file.close()
 	open2.close()
 	open3.close()
-	cmd='Rscript ' +script+'/pchisq.R '+out2+' '+out3+' '+myout2+' '+myout3
+	cmd='python ' +script+'/pchisq.py '+out2+' '+out3+' '+myout2+' '+myout3
 	run_command(cmd)
 def ALL_type(y):
 	df1 = pd.read_table(y,header=None)
