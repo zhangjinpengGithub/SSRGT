@@ -45,7 +45,10 @@ for file in files:
 def run_command(cmd):
 #	print(cmd)
 	return_code = subprocess.call(cmd, shell=True)
-
+if(os.path.isfile(GENOME)):
+        cmd1 = 'cp '+GENOME+ ' ./'
+        run_command(cmd1)
+        GENOME='./'+cfg.get("data files","REFERENCE_FILE")
 def get_SSR(reader1):
 	cmd1 = 'perl '  +SSRMMD+' '+' -f1 '+reader1+' -l 100 -ss 1  -mo '+ motif +' -t '+str(thread)+' -o ./'
 	run_command(cmd1)
