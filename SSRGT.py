@@ -527,7 +527,7 @@ def abxac_map(z):
             df1 = pd.read_csv(z,header=None,sep='\t')
             list1=df1.values.tolist()
             for i in range(len(list1)):
-                 list1[i][1]='<efxeg>'
+                 list1[i][1]='abxac'
                  list1[i][0]=str(list1[i][0])
                  list1[i][2]=''
             df1=pd.DataFrame(list1)
@@ -547,13 +547,13 @@ def abxac_map(z):
                     elif(list2[i][5].split("/")[1]==mya ):
                         myc=list2[i][5].split("/")[0]
                     if (a!='--' and (a==mya+"/"+mya )):
-                        list2[i][7+j]='ee'
+                        list2[i][7+j]='aa'
                     elif (a!='--' and (a==mya+"/"+myc or a==myc+"/"+mya) ):
-                        list2[i][7+j]='eg'
+                        list2[i][7+j]='ac'
                     elif (a!='--' and (a==myc+"/"+myb or a==myb+"/"+myc) ):
-                        list2[i][7+j]='fg'
+                        list2[i][7+j]='bc'
                     elif (a!='--' and (a==mya+"/"+myb or a==myb+"/"+mya) ):
-                        list2[i][7+j]='fe'
+                        list2[i][7+j]='ba'
                     else:
                         list2[i][7+j]='--'
 
@@ -578,7 +578,7 @@ def abxcd_map(z):
             df1 = pd.read_csv(z,header=None,sep='\t')
             list1=df1.values.tolist()
             for i in range(len(list1)):
-                 list1[i][1]='<abxcd>'
+                 list1[i][1]='abxcd'
                  list1[i][0]=str(list1[i][0])
                  list1[i][2]=''
             df1=pd.DataFrame(list1)
@@ -625,7 +625,7 @@ def aaxbc_map(z):
             df1 = pd.read_csv(z,header=None,sep='\t')
             list1=df1.values.tolist()
             for i in range(len(list1)):
-                 list1[i][1]='<nnxnp>'
+                 list1[i][1]='aaxbc'
                  list1[i][0]=str(list1[i][0])
                  list1[i][2]=''
             df1=pd.DataFrame(list1)
@@ -640,9 +640,9 @@ def aaxbc_map(z):
                     myab=list2[i][3]#aa
                     myab1=list2[i][5]#bc
                     if (a!='--' and a.split("/")[0]!=a.split("/")[1] and ((a.split("/")[0]==myab.split("/")[0] and a.split("/")[1]==myab1.split("/")[0] ) or (a.split("/")[0]==myab1.split("/")[0] and a.split("/")[1]==myab.split("/")[0] ))):
-                        list2[i][7+j]='nn'
+                        list2[i][7+j]='ab'
                     elif (a!='--' and a.split("/")[0]!=a.split("/")[1] and ((a.split("/")[0]==myab.split("/")[0] and a.split("/")[1]==myab1.split("/")[1] ) or (a.split("/")[0]==myab1.split("/")[1] and a.split("/")[1]==myab.split("/")[0]))):
-                        list2[i][7+j]='np'
+                        list2[i][7+j]='ac'
                     else:
                         list2[i][7+j]='--'
                 list2[i][3]='(nn,np)'
@@ -665,7 +665,7 @@ def abxcc_map(z):
             df1 = pd.read_csv(z,header=None,sep='\t')
             list1=df1.values.tolist()
             for i in range(len(list1)):
-                 list1[i][1]='<lmxll>'
+                 list1[i][1]='abxcc'
                  list1[i][0]=str(list1[i][0])
                  list1[i][2]=''
             df1=pd.DataFrame(list1)
@@ -680,9 +680,9 @@ def abxcc_map(z):
                     myab1=list2[i][3]#ab
                     myab=list2[i][5]#cc
                     if (a!='--' and a.split("/")[0]!=a.split("/")[1] and ((a.split("/")[0]==myab.split("/")[0] and a.split("/")[1]==myab1.split("/")[0] ) or (a.split("/")[0]==myab1.split("/")[0] and a.split("/")[1]==myab.split("/")[0] ))):
-                        list2[i][7+j]='ll'
+                        list2[i][7+j]='bc'
                     elif(a!='--' and a.split("/")[0]!=a.split("/")[1] and ((a.split("/")[0]==myab.split("/")[0] and a.split("/")[1]==myab1.split("/")[1] ) or (a.split("/")[0]==myab1.split("/")[1] and a.split("/")[1]==myab.split("/")[0] ))):
-                        list2[i][7+j]='lm'
+                        list2[i][7+j]='ac'
                     else:
                         list2[i][7+j]='--'
                 list2[i][3]='(lm,ll)'
@@ -772,7 +772,7 @@ def ALL_type(y):
 			list2[i][5]=change(list2[i][5].split('/')[0],ssr)+'/'+change(list2[i][5].split('/')[1],ssr)
 		for j in range(len(progany)+1):            
 			a=list2[i][7+j]
-			if (a!='--'):
+			if (a!='--' and change(a.split('/')[0],ssr) and change(a.split('/')[1],ssr)): #10/15
 				list2[i][7+j]=change(a.split('/')[0],ssr)+'/'+change(a.split('/')[1],ssr)   
 	df1=pd.DataFrame(list2)
 	list3 = []
@@ -828,7 +828,7 @@ def write2map(x,y,z,hybrid_pchis,hybrid_map,abxaa_Fslinkmap,abxab_Fslinkmap):
     progany=progany.values.tolist()
     
     for i in range(len(list1)):
-        list1[i][1]='<abxaa>'
+        list1[i][1]='abxaa'
         list1[i][0]=str(list1[i][0])
         list1[i][2]=''
     df1=pd.DataFrame(list1)
@@ -899,7 +899,7 @@ def abxab(hybrid_map,abxab_Fslinkmap):
             df1 = pd.read_csv(hybrid_map,header=None,sep='\t')
             list1=df1.values.tolist()
             for i in range(len(list1)):
-                 list1[i][1]='<abxab>'
+                 list1[i][1]='abxab'
                  list1[i][0]=str(list1[i][0])
                  list1[i][2]=''
             df1=pd.DataFrame(list1)
@@ -1073,8 +1073,308 @@ def getfastiq(x):
     
     if(os.path.isfile('Myprogeny.id')):
         return ('./Myprogeny.id')
+
+def changaaxab(dict,df1,z):
+    df1.insert(1, 'E', 1)
+    list1 = []
+    get_proganyID(list1,progenyID)
+    num=len(list1)
+    flag=5+num
+    list1 = []
+    for i in range(10+num):
+        list1.append(str(i))
+    df1.columns=list1
+    df1.drop([0],axis = 0, inplace = True)
+    list2=df1.values.tolist()
+    for i in range(len(list2)):
+        list2[i][1]="aa"
+        list2[i][2]="ab"
+        list2[i][3]=dict[list2[i][0]].split("/")[0]
+        list2[i][4]=dict[list2[i][0]].split("/")[1]
+        list2[i][flag]=int(list2[i][flag])
+        list2[i][flag+1]=int(list2[i][flag+1])
+        list2[i][flag+2]=num-list2[i][flag]-list2[i][flag+1]
+    df1=pd.DataFrame(list2)
+    order=[0,3,4,flag,flag+1,flag+2,flag+4,flag+3,1,2]
+    list1 = []
+    for i in range(5,flag):
+         list1.append(i)
+    order=order+list1
+    df1=df1[order]
+    list3 = []
+    get_proganyID(list3,progenyID)
+    namelist=['Position','Allele_a' ,'Allele_b','aa','ab','--','x2','p-value','female','male']
+    list3=namelist+list3
+    df1.columns=list3
+    df1.to_csv(z,sep='\t',header=True,index=False)
+def changabxaa(dict,df1,z):
+    df1.insert(1, 'E', 1)
+    list1 = []
+    get_proganyID(list1,progenyID)
+    num=len(list1)
+    flag=5+num
+    list1 = []
+    for i in range(10+num):
+        list1.append(str(i))
+    df1.columns=list1
+    df1.drop([0],axis = 0, inplace = True)
+    list2=df1.values.tolist()
+    for i in range(len(list2)):
+        list2[i][1]="ab"
+        list2[i][2]="aa"
+        list2[i][3]=dict[list2[i][0]].split("/")[0]
+        list2[i][4]=dict[list2[i][0]].split("/")[1]
+        list2[i][flag]=int(list2[i][flag])
+        list2[i][flag+1]=int(list2[i][flag+1])
+        list2[i][flag+2]=num-list2[i][flag]-list2[i][flag+1]
+    df1=pd.DataFrame(list2)
+    order=[0,3,4,flag,flag+1,flag+2,flag+4,flag+3,1,2]
+    list1 = []
+    for i in range(5,flag):
+         list1.append(i)
+    order=order+list1
+    df1=df1[order]
+    list3 = []
+    get_proganyID(list3,progenyID)
+    namelist=['Position','Allele_a' ,'Allele_b','ab','aa','--','x2','p-value','female','male']
+    list3=namelist+list3
+    df1.columns=list3
+    df1.to_csv(z,sep='\t',header=True,index=False)
+def changabxab(dict,df1,z):
+    df1.insert(1, 'E', 1)
+    list1 = []
+    get_proganyID(list1,progenyID)
+    num=len(list1)
+    flag=5+num
+    list1 = []
+    for i in range(11+num):
+        list1.append(str(i))
+    df1.columns=list1
+    df1.drop([0],axis = 0, inplace = True)
+    list2=df1.values.tolist()
+    for i in range(len(list2)):
+        list2[i][1]="ab"
+        list2[i][2]="ab"
+        list2[i][3]=dict[list2[i][0]].split("/")[0]
+        list2[i][4]=dict[list2[i][0]].split("/")[1]
+        list2[i][flag]=int(list2[i][flag])
+        list2[i][flag+1]=int(list2[i][flag+1])
+        list2[i][flag+2]=int(list2[i][flag+2])
+        list2[i][flag+3]=num-list2[i][flag]-list2[i][flag+1]-list2[i][flag+2]
+    df1=pd.DataFrame(list2)
+    order=[0,3,4,flag,flag+1,flag+2,flag+3,flag+5,flag+4,1,2]
+    list1 = []
+    for i in range(5,flag):
+         list1.append(i)
+    order=order+list1
+    df1=df1[order]
+    list3 = []
+    get_proganyID(list3,progenyID)
+    namelist=['Position','Allele_a' ,'Allele_b','aa','ab','bb','--','x2','p-value','female','male']
+    list3=namelist+list3
+    df1.columns=list3
+    df1.to_csv(z,sep='\t',header=True,index=False)
+def changaaxbc(dict,df1,z):
+    df1.insert(1, 'E', 1)
+    df1.insert(2, 'f', 2)
+    list1 = []
+    get_proganyID(list1,progenyID)
+    num=len(list1)
+    flag=6+num
+    list1 = []
+    for i in range(11+num):
+        list1.append(str(i))
+    df1.columns=list1
+    df1.drop([0],axis = 0, inplace = True)
+    list2=df1.values.tolist()
+    for i in range(len(list2)):
+        list2[i][1]="aa"
+        list2[i][2]="bc"
+        list2[i][3]=dict[list2[i][0]].split("/")[0]
+        list2[i][4]=dict[list2[i][0]].split("/")[1]
+        list2[i][5]=dict[list2[i][0]].split("/")[2]
+        list2[i][flag]=int(list2[i][flag])
+        list2[i][flag+1]=int(list2[i][flag+1])
+        list2[i][flag+2]=num-list2[i][flag]-list2[i][flag+1]
+    df1=pd.DataFrame(list2)
+    order=[0,3,4,5,flag,flag+1,flag+2,flag+4,flag+3,1,2]
+    list1 = []
+    for i in range(6,flag):
+         list1.append(i)
+    order=order+list1
+    df1=df1[order]
+    list3 = []
+    get_proganyID(list3,progenyID)
+    namelist=['Position','Allele_a' ,'Allele_b','Allele_c','aa','bc','--','x2','p-value','female','male']
+    list3=namelist+list3
+    df1.columns=list3
+    df1.to_csv(z,sep='\t',header=True,index=False)
+def changabxac(dict,df1,z):
+    df1.insert(1, 'E', 1)
+    df1.insert(2, 'f', 2)
+    list1 = []
+    get_proganyID(list1,progenyID)
+    num=len(list1)
+    flag=6+num
+    list1 = []
+    for i in range(13+num):
+        list1.append(str(i))
+    df1.columns=list1
+    df1.drop([0],axis = 0, inplace = True)
+    list2=df1.values.tolist()
+    for i in range(len(list2)):
+        list2[i][1]="ab"
+        list2[i][2]="ac"
+        list2[i][3]=dict[list2[i][0]].split("/")[0]
+        list2[i][4]=dict[list2[i][0]].split("/")[1]
+        list2[i][5]=dict[list2[i][0]].split("/")[2]
+        list2[i][flag]=int(list2[i][flag])
+        list2[i][flag+1]=int(list2[i][flag+1])
+        list2[i][flag+2]=int(list2[i][flag+2])
+        list2[i][flag+3]=int(list2[i][flag+3])
+        list2[i][flag+4]=num-list2[i][flag]-list2[i][flag+1]-list2[i][flag+2]-list2[i][flag+3]
+    df1=pd.DataFrame(list2)
+    order=[0,3,4,5,flag,flag+1,flag+2,flag+3,flag+4,flag+6,flag+5,1,2]
+    list1 = []
+    for i in range(6,flag):
+         list1.append(i)
+    order=order+list1
+#    print(order)
+    df1=df1[order]
+    list3 = []
+    get_proganyID(list3,progenyID)
+    namelist=['Position','Allele_a' ,'Allele_b','Allele_c','aa','ac','ab','bc','--','x2','p-value','female','male']
+    list3=namelist+list3
+    df1.columns=list3
+    df1.to_csv(z,sep='\t',header=True,index=False)
+def changabxcc(dict,df1,z):
+    df1.insert(1, 'E', 1)
+    df1.insert(2, 'f', 2)
+    list1 = []
+    get_proganyID(list1,progenyID)
+    num=len(list1)
+    flag=6+num
+    list1 = []
+    for i in range(11+num):
+        list1.append(str(i))
+    df1.columns=list1
+    df1.drop([0],axis = 0, inplace = True)
+    list2=df1.values.tolist()
+    for i in range(len(list2)):
+        list2[i][1]="ab"
+        list2[i][2]="cc"
+        list2[i][3]=dict[list2[i][0]].split("/")[0]
+        list2[i][4]=dict[list2[i][0]].split("/")[1]
+        list2[i][5]=dict[list2[i][0]].split("/")[2]
+        list2[i][flag]=int(list2[i][flag])
+        list2[i][flag+1]=int(list2[i][flag+1])
+        list2[i][flag+2]=num-list2[i][flag]-list2[i][flag+1]
+    df1=pd.DataFrame(list2)
+    order=[0,3,4,5,flag,flag+1,flag+2,flag+4,flag+3,1,2]
+    list1 = []
+    for i in range(6,flag):
+         list1.append(i)
+    order=order+list1
+    df1=df1[order]
+    list3 = []
+    get_proganyID(list3,progenyID)
+    namelist=['Position','Allele_a' ,'Allele_b','Allele_c','ac','bc','--','x2','p-value','female','male']
+    list3=namelist+list3
+    df1.columns=list3
+    df1.to_csv(z,sep='\t',header=True,index=False)
+def changabxcd(dict,df1,z):
+    df1.insert(1, 'E', 1)
+    df1.insert(2, 'f', 2)
+    df1.insert(3, 'g', 3)
+    list1 = []
+    get_proganyID(list1,progenyID)
+    num=len(list1)
+    flag=7+num
+    list1 = []
+    for i in range(14+num):
+        list1.append(str(i))
+    df1.columns=list1
+    df1.drop([0],axis = 0, inplace = True)
+    list2=df1.values.tolist()
+    for i in range(len(list2)):
+        list2[i][1]="ab"
+        list2[i][2]="cd"
+        list2[i][3]=dict[list2[i][0]].split("/")[0]
+        list2[i][4]=dict[list2[i][0]].split("/")[1]
+        list2[i][5]=dict[list2[i][0]].split("/")[2]
+        list2[i][6]=dict[list2[i][0]].split("/")[3]
+        list2[i][flag]=int(list2[i][flag])
+        list2[i][flag+1]=int(list2[i][flag+1])
+        list2[i][flag+2]=int(list2[i][flag+2])
+        list2[i][flag+3]=int(list2[i][flag+3])
+        list2[i][flag+4]=num-list2[i][flag]-list2[i][flag+1]-list2[i][flag+2]-list2[i][flag+3]
+    df1=pd.DataFrame(list2)
+    order=[0,3,4,5,6,flag,flag+1,flag+2,flag+3,flag+4,flag+6,flag+5,1,2]
+    list1 = []
+    for i in range(7,flag):
+         list1.append(i)
+    order=order+list1
+#    print(order)
+    df1=df1[order]
+    list3 = []
+    get_proganyID(list3,progenyID)
+    namelist=['Position','Allele_a' ,'Allele_b','Allele_c','Allele_d','ac','ad','bc','bd','--','x2','p-value','female','male']
+    list3=namelist+list3
+    df1.columns=list3
+    df1.to_csv(z,sep='\t',header=True,index=False)
+def Merge(x,y,z):
+    if(os.path.isfile(x) and os.path.isfile(y) and os.path.isfile(z)):
+        dict={}
+        with open (z) as f:
+            lines=f.readlines()[1:]
+            for line in lines:
+                tmp=line.strip().split('\t')
+                if(z=='abxaa.txt' or z=='abxab.txt'):
+                    dict[tmp[0]]=tmp[3]
+                elif(z=='aaxab.txt'):
+                    dict[tmp[0]]=tmp[5]
+                elif(z=='aaxbc.txt'):
+                    myout=tmp[3].split('/')[0]+'/'+tmp[5]
+                    dict[tmp[0]]=myout
+                elif(z=='abxac.txt'):
+                    if(tmp[5].split('/')[0]!=tmp[3].split('/')[0]!=tmp[3].split('/')[1] ):
+                        dict[tmp[0]]=tmp[3]+'/'+tmp[5].split('/')[0]
+                    elif(tmp[5].split('/')[1]!=tmp[3].split('/')[0]!=tmp[3].split('/')[1] ):
+                        dict[tmp[0]]=tmp[3]+'/'+tmp[5].split('/')[1]
+                elif(z=='abxcc.txt'):
+                    myout=tmp[3]+'/'+tmp[5].split('/')[0]
+                    dict[tmp[0]]=myout
+                elif(z=='abxcd.txt'):
+                    myout=tmp[3]+'/'+tmp[5]
+                    dict[tmp[0]]=myout
+        df1 = pd.read_csv(x,sep='\t',header=None)
+        df2 = pd.read_csv(y,sep='\t',header=None)
+        data = pd.merge(df1,df2,on=0,how="left")
+        if(z=='abxaa.txt'):
+            changabxaa(dict,data,z)
+        elif(z=='aaxab.txt'):
+            changaaxab(dict,data,z)
+        elif(z=='aaxbc.txt'):
+            changaaxbc(dict,data,z)
+        elif(z=='abxab.txt'):
+            changabxab(dict,data,z)
+        elif(z=='abxac.txt'):
+            changabxac(dict,data,z)
+        elif(z=='abxcc.txt'):
+            changabxcc(dict,data,z)
+        elif(z=='abxcd.txt'):
+            changabxcd(dict,data,z)
+    else:
+        if(os.path.isfile(z)):
+            os.remove(z)
 def populationtype(p):
-#    print(p)
+    Merge('abxaa.joinmap.txt','Female_pure_pchis.out','abxaa.txt')
+    Merge('aaxab.joinmap.txt', 'Male_pure_pchis.out' ,'aaxab.txt')
+    Merge('aaxbc.joinmap.txt', 'aaxbc.marker.out.pchis.out' ,'aaxbc.txt')
+    Merge('abxab.joinmap.txt','Female_hybrid_pchis.out','abxab.txt')
+    Merge('abxac.joinmap.txt','abxac.marker.out.pchis.out','abxac.txt')
+    Merge('abxcd.joinmap.txt','abxcd.marker.out.pchis.out','abxcd.txt')
+    Merge('abxcc.joinmap.txt','abxcc.marker.out.pchis.out','abxcc.txt')
     os.mkdir('./WorkingDirectory')
     if (p == 'F2'):
         cmd='mv abxab* ./WorkingDirectory'    
@@ -1101,7 +1401,7 @@ def populationtype(p):
                 run_command(cmd)
         else:
             sys.exit(' Error!Please input BC:female or BC:male')
-    cmd='mv  *marker*   ./WorkingDirectory'
+    cmd='mv  *marker*  *map*  ./WorkingDirectory'
     run_command(cmd)
     cmd='mv F* M*  ./WorkingDirectory'
     run_command(cmd)
@@ -1134,7 +1434,7 @@ def filter(population):
                         for line in f:
                                 flag1=flag1+1
                                 if(os.path.isfile(line.split('\t')[0]+'.sort.dedup.bam')==False ):
-                                        sys.exit(' Error!Please do not execute the --nomap command,this step cannot be skipped now.')
+                                       sys.exit(' Error!Please do not execute the --nomap command,this step cannot be skipped now.')
                 df1 = pd.read_table('Male_marker.txt',header=None)
                 df1=df1.values.tolist()
                 df1=pd.DataFrame(df1)
