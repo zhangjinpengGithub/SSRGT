@@ -14,8 +14,10 @@ cfg = ConfigParser()
 cfg.read("parameters.ini")
 bwa=cfg.get("folders","BWA_FOLD")
 samtools=cfg.get("folders","SAMTOOLS_FOLD")+'/samtools'
+bcftools=cfg.get("folders","BCFTOOLS_FOLD")+'/bcftools'
 thread=cfg.getint("parameter","THREADS")
 MAPQ=cfg.getint("parameter","MAPQ")
+GQ=cfg.get("parameter","GQ")
 pvalue=cfg.get("parameter","PVALUE")
 MISPCT=cfg.get("parameter","MISS_GENOTYPES")
 data_fold=cfg.get("folders","RADDATA_FOLD")
@@ -24,7 +26,7 @@ progenyfold=data_fold
 parentfold=data_fold
 script=cfg.get("folders","SSRGT_FOLD")+'/script'
 SSRMMD=script+'/SSRMMD.pl'
-DP=cfg.get("parameter","DEPTH_OF_COVERAGE")
+DP=cfg.get("parameter","ALLELE_DEPTH")
 DP=int(DP)
 ###########################################################################################################
 Home=os.environ['HOME']
@@ -76,6 +78,7 @@ def get_SSR(reader1):
 					f2.write(line+"\n")
 	file.close()
 def find_parent(reader1):
+        	
         cmd = bwa + ' index '	+reader1
         run_command(cmd)
         cmd = bwa +  ' mem  -M  '+reader1+' '+male1+' '+male2+' > male.sam'
@@ -94,6 +97,10 @@ def find_parent(reader1):
         run_command(cmd)
         cmd=samtools+' index  male.sort.dedup.bam'
         run_command(cmd)
+        cmd=bcftools +" mpileup  -Obuzv -a AD,INFO/AD -f "+reader1+" male.sort.dedup.bam  | "+bcftools +" call -m -f gq -Oz -o male.vcf.gz"
+        run_command(cmd)
+        cmd=bcftools+" index male.vcf.gz" 
+        run_command(cmd)
         cmd = bwa +  ' mem  -M  '+reader1+' '+female1+' '+female2+' > female.sam'
         run_command(cmd)
         cmd=samtools+" sort  "+" -n -o female.sam.sorted female.sam"
@@ -110,26 +117,34 @@ def find_parent(reader1):
         run_command(cmd)
         cmd=samtools+' index  female.sort.dedup.bam'
         run_command(cmd)
+        cmd=bcftools +" mpileup  -Obuzv -a AD,INFO/AD -f "+reader1+" female.sort.dedup.bam  | "+bcftools +" call -m -f gq -Oz -o female.vcf.gz"
+        run_command(cmd)
+        cmd=bcftools+" index female.vcf.gz"
+        run_command(cmd)
 def get_proganyID(list1,proganyID):
         with open(proganyID) as f:
                 for line in f:
                         a=line.strip().split("\t")
                         list1.append(a[0])
 def callparent2():
-        cmd='python   '+script+'/parent_merge.py '+'-parent1 male.vcf01.txt.out -parent2 femaleallSSR_type.txt -o female.out'
+        cmd='python   '+script+'/parentGT.py '+' SSR.txt male.vcf.gz male.01.txt'
         run_command(cmd)
-        cmd='python   '+script+'/parent_merge.py '+'-parent1 female.vcf01.txt.out -parent2 maleallSSR_type.txt -o  male.out'
+        cmd='python   '+script+'/parentGT.py '+' SSR.txt female.vcf.gz female.01.txt'
+        run_command(cmd)
+        cmd='python   '+script+'/parent_merge.py '+' female.01.txt male.vcf.gz male.out'
+        run_command(cmd)
+        cmd='python   '+script+'/parent_merge.py '+' male.01.txt female.vcf.gz female.out'
         run_command(cmd)
         cmd='less -S female.out |sort|uniq > '+'female.sort.out'
         run_command(cmd)
         cmd='less -S male.out |sort|uniq > '+'male.sort.out'
         run_command(cmd)
-        df1 = pd.read_csv('female.vcf01.txt.out',sep='\t',header=None)
+        df1 = pd.read_csv('female.01.txt',sep='\t',header=None)
         df2 = pd.read_csv('male.sort.out',sep='\t',header=None)
         data = pd.merge(df1,df2,on=0,how="left")
         df=data.dropna(axis=0,how='any')
         df.to_csv('Female_marker.txt',sep='\t',header=False,index=False)
-        df1 = pd.read_csv('male.vcf01.txt.out',sep='\t',header=None)
+        df1 = pd.read_csv('male.01.txt',sep='\t',header=None)
         df2 = pd.read_csv('female.sort.out',sep='\t',header=None)
         data = pd.merge(df1,df2,on=0,how="left")
         df=data.dropna(axis=0,how='any')
@@ -176,6 +191,10 @@ def Mapping_progeny(i):
                         run_command(cmd)
                         cmd=samtools+' index  ' +tmp[0]+'.sort.dedup.bam'
                         run_command(cmd)
+                        cmd=bcftools +" mpileup  -Obuzv -a AD,INFO/AD -f "+GENOME+" "+tmp[0]+".sort.dedup.bam"+" | "+bcftools +" call -m -f gq -Oz -o "+tmp[0]+".vcf.gz"
+                        run_command(cmd)
+                        cmd=bcftools+" index "+tmp[0]+".vcf.gz"
+                        run_command(cmd)
                         tmpsam=tmp[0]+'.sam'
                         tmpbam=tmp[0]+'.bam'
                         tmpfix=tmp[0]+'.sam'+'.sorted'
@@ -188,45 +207,20 @@ def Mapping_progeny(i):
                         os.remove(tmpfix)
                         os.remove(tmpfixsort)
                         os.remove(tmpfixsort1)
-def changemark(x):
-        df1 = pd.read_table(x,header=None)
-        flag=df1.shape[1]
-        df1=df1.values.tolist()
-        if (flag>7):
-            for a in range(len(df1)):
-                strings=df1[a][0]
-                df1[a][0]=strings.split(":")[0]+':'+str(int(strings.split(":")[1])-3)
-        df1=pd.DataFrame(df1)
-        df=df1.iloc[:,[0,1,2,3,4,5,6]]
-        df.to_csv(x,sep='\t',header=False,index=False)
 
 def SSRGM(reader1):
-	changemark('Female_marker.txt')
-	changemark('Male_marker.txt')
 	with open(progenyID) as f:
 		for line in f:
 			tmp = line.strip().split('\t')
-			cmd='python '+script+'/progenyGT.py '+'Female_marker.txt '+tmp[0]+'.sort.dedup.bam '+tmp[0]+'.out'
+			cmd='python '+script+'/progenyGT.py '+'Female_marker.txt '+tmp[0]+'.vcf.gz '+tmp[0]+'.out'
 			run_command(cmd)
 			tmout=tmp[0]+'.out'
 			os.remove(tmout)
-			cmd='python '+script+'/progenyGT.py '+'Male_marker.txt '+tmp[0]+'.sort.dedup.bam '+tmp[0]+'.out2'
+			cmd='python '+script+'/progenyGT.py '+'Male_marker.txt '+tmp[0]+'.vcf.gz '+tmp[0]+'.out2'
 			run_command(cmd)
 			tmout=tmp[0]+'.out2'
 			os.remove(tmout)
 	
-	changelist('Male_marker.txt')
-	changelist('Female_marker.txt')
-def changelist(x):
-        list1 = []
-        get_proganyID(list1,progenyID)
-        df1 = pd.read_table(x,header=None)
-        df1=df1.values.tolist()
-        for a in range(len(df1)):
-                strings=df1[a][0]
-                df1[a][0]=strings.split(":")[0]+':'+str(int(strings.split(":")[1])+3)
-        df1=pd.DataFrame(df1)
-        df1.to_csv(x,sep='\t',header=False,index=False)
 def genetype(x,list1,progenyID,out):
         df1 = pd.read_csv(x,header=None,sep='\t')
         df1=df1.values.tolist()
@@ -875,9 +869,9 @@ def write2map(x,y,z,hybrid_pchis,hybrid_map,abxaa_Fslinkmap,abxab_Fslinkmap):
         cmd="sed  's/\t/  /g' Female_abxaa_Fslinkmap.txt >abxaa_Fslinkmap.txt"
         run_command(cmd)       
     
-    if(os.path.isfile(hybrid_pchis)==False):
-        print("There were no data consistent with abxab segregation pattern")
-    else:
+    if(os.path.isfile(hybrid_pchis)):
+        # print("There were no data consistent with abxab segregation pattern")
+#    else:
         file = open(hybrid_pchis, "r")
         lines = file.readlines()
         for line in lines:
@@ -886,9 +880,9 @@ def write2map(x,y,z,hybrid_pchis,hybrid_map,abxaa_Fslinkmap,abxab_Fslinkmap):
             if (float(tmp[5])>float(pvalue)):
                 get(tmp[0],y,hybrid_map)
         file.close()
-        if(os.path.isfile(hybrid_map)==False):
-            print("There were no data consistent with abxab segregation pattern")
-        else:
+        if(os.path.isfile(hybrid_map)):
+#            print("There were no data consistent with abxab segregation pattern")
+#        else:
             abxab(hybrid_map,abxab_Fslinkmap)
     
 def abxab(hybrid_map,abxab_Fslinkmap):
@@ -1030,20 +1024,8 @@ def chang_head(x):
     list1=namelist+list1
     df1.columns=list1
     df1.to_csv(x,sep='\t',header=True,index=False)
-def callparent(i):
-        y=i+'.sort.dedup.bam'
-        out=i+'.vcf'+'01.txt'
-        out2=i+'allSSR_type.txt'
-        SSR=GENOME+'.SSRs'
-        cmd='python '+script+'/parentGT.py '+ ' SSR.txt ' + ' '+ y+' '+out +' '+out2
-        run_command(cmd)
-        myout=out+'.out'
-        cmd='less -S '+out+ ' |sort|uniq > '+myout
-        run_command(cmd)
-
 def getfastiq(x):
     global male1,male2,female1,female2
-    
     Myproid=open('Myprogeny.id','w')
     Myproid.close()
     with open(x,'r') as f:
@@ -1070,7 +1052,6 @@ def getfastiq(x):
             if (line.split(":")[0]=='FEMALE'):
                 female1=parentfold+'/'+line.split()[0].split(":")[1]
                 female2=parentfold+'/'+line.split()[1]
-    
     if(os.path.isfile('Myprogeny.id')):
         return ('./Myprogeny.id')
 
@@ -1377,12 +1358,18 @@ def populationtype(p):
     Merge('abxcc.joinmap.txt','abxcc.marker.out.pchis.out','abxcc.txt')
     os.mkdir('./WorkingDirectory')
     if (p == 'F2'):
-        cmd='mv abxab* ./WorkingDirectory'    
-        run_command(cmd)
-        cmd='rm a* '
-        run_command(cmd)
-        cmd='mv ./WorkingDirectory/abxab* ./'
-        run_command(cmd)
+        files =os.listdir()
+        for file in files:
+            if (file.startswith('abxab')):
+                cmd='mv abxab* ./WorkingDirectory'    
+                run_command(cmd)
+                cmd='rm a* '
+                run_command(cmd)
+                cmd='mv ./WorkingDirectory/abxab* ./'
+                run_command(cmd)
+            else:
+                print("No SSR genotypes are found that fit Mendelian segregation ratios for abxab.")
+                break
     elif(p.split(':')[0] == 'BC'):
         if(p=='BC:female' or p=='BC:male'):
             if (p.split(':')[1] == 'male'):
@@ -1467,10 +1454,7 @@ def main(args):
 		if(os.path.isfile('SSR.txt')==False):
 			sys.exit(' Error!Please do not execute the --nosearch command,this step cannot be skipped now.')
 		find_parent(GENOME)
-		tasks=['male','female']
 		print("This step is calling SSR genotypes for the parents, please wait!")
-		callparent(tasks[0])
-		callparent(tasks[1])
 		callparent2()
 	if(args.nomap):
 		Mapping_Pool()
@@ -1497,8 +1481,8 @@ if __name__ == "__main__":
 -------------------------------------------------------------------------------------------------------
 SSRGT provides a usable and accurate SSR genotyping platform for distant hybridization populations. 
 It has the advantage that a large number of SSR loci segregated by Mendelian segregation ratio in a
-population can be discovered with a simple command and an input format file can be generated for the
-genetic mapping software. It will facilitate the construction of SSR genetic linkage maps,
+population can be discovered with a simple command. 
+It will facilitate the construction of SSR genetic linkage maps,
 locating quantitative trait loci, marker-assisted selection breeding and various genetic studies.			
 
 Contact: Chunfa Tong  <tongchf@njfu.edu.cn>
