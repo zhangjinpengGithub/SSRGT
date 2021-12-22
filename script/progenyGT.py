@@ -6,138 +6,96 @@ import re
 import pandas as pd
 from multiprocessing import Pool
 from configparser import ConfigParser
-x = sys.argv[1] #Male_marker.txt
-y=  sys.argv[2] #progan1_filter.sorted.bam
-out=sys.argv[3] #
+x = sys.argv[1] 
+y=  sys.argv[2] 
+out=sys.argv[3] 
 cfg = ConfigParser()
 cfg.read("parameters.ini")
-samtools=cfg.get("folders","SAMTOOLS_FOLD")+'/samtools'
 thread=cfg.getint("parameter","THREADS")
-Depth_Of_Coverage=cfg.getint("parameter","DEPTH_OF_COVERAGE")
-homozygotes=cfg.get("parameter","FREQUENCY_OF_HOMOZYGOTES")
-heterozygotes=cfg.get("parameter","FREQUENCY_OF_HETEROZYGOTES")
-homozygotes=float(homozygotes)
-heterozygotes=float(heterozygotes)
-major_allele=heterozygotes
-def run_command(cmd):
-#    print(cmd)
-    return_code = subprocess.call(cmd, shell=True)
+bcftools=cfg.get("folders","BCFTOOLS_FOLD")+'/bcftools'
+DP=cfg.get("parameter","ALLELE_DEPTH")
+DP=int(DP)
+GQ=cfg.get("parameter","GQ")
 def find_maxlen(s,a):
         c=re.finditer(r'(%s)+'%(a),s)
         find_maxlist=[]
         for i in c:
                 find_maxlist.append(i.group())
-        if (len(find_maxlist)==1 ):
-            str2=max(find_maxlist,key=len, default='')
-            return (str2)
-        elif (len(find_maxlist)==2):
-            if (len(find_maxlist[0])>3 and len(find_maxlist[1])>3):
-                start=int(s.find(a))
-                end=int(s.rfind(a))+len(a)
-                return(s[start:end])
-            else:
-                str2=max(find_maxlist,key=len, default='')
-                return (str2)
-        else:
-            return (0)
+        str2=max(find_maxlist,key=len, default='')
+        return str2
 
-def ssr(line,ref_end,motif_str):
-    a=line.upper()
-    ref_start=0
-    ref_end=ref_end
-    a=a[ref_start:ref_end]
-    len_a=ref_end-ref_start
-    if (" " not in a and len(re.findall(r"[A,T,C,G,*]",a))==len_a and a.count(motif_str)!=0 and a.count(',')==0):
-#    if " " not in a:
-        a=a.replace("*","")
-        str2=find_maxlen(a,motif_str)#example: a=ATATCTATATAT motif_str=AT  return ATATAT
-        return (str2)
-    else:
-        return(0)
-def GMSSR(gene,motif,motif2,refmotif):
-    motif_str=''
-    motif_repeat=0
-    order=[]
-    re_search=re.findall('\w+',refmotif)
-    motif_str=re_search[0]
-    motif_repeat=int(re_search[1])
-    refmotif=motif_str*motif_repeat
-    len1=len(refmotif)
-    with open(gene,"r") as f:
-        next(f)
-        lines = f.readlines()
-        for line in lines:
-            refstr=line
-            break
-    ref_start=refstr.find("N",0)
-    ref_end=ref_start+len1+refstr.count("*",ref_start)+3
-    with open(gene,"r") as f:
-        lines = f.readlines()[3:]
-        flen=len(lines)
-        if (flen >= Depth_Of_Coverage):
-            for line in lines:
-                if (line.startswith(" ")):
-                    continue
-                else:
-                    str_numble=ssr(line,ref_end,motif_str)
-                    if(str_numble!=0 and str_numble!='None'):
-                        order.append(str(str_numble))
-            order_len=len(order)
-            if(order_len>0):
-                myset = set(order)
-                dict={}
-                for item in myset:
-                    dict.update({item:order.count(item)})
-                dict={k:v for k, v in dict.items() if v>=3}
-                dict=sorted(dict.items(),key=lambda x:x[1],reverse=True)#order by value , reverse=True is from  largest to smallest
-                my_dtct=str(dict).strip('{}[]').replace("\'", "").replace("(", "").replace(")", "")
-#                print(my_dtct)
-                if (len(dict)==0):
-                    return (0)
-                else:
-                    b=re.findall(r'\d+',my_dtct)
-                    order_len=0
-                    for i in range(len(b)):
-                        order_len=int(b[i])+ order_len
-#                print(order_len)
-                order_len=float(order_len)
-                mydtct0=my_dtct.split(",")[0]
-                gene_rep=gene.replace(".txt", "")
-                first=int(my_dtct.split(",")[1])
-                if (my_dtct.count(",")==1  and first>4 and len(my_dtct.split(",")[0])>7):
-                    myout=gene_rep+'\t'+mydtct0+'/'+mydtct0
-                    with open(out,"a+") as f2:
-                        f2.write(myout+"\n")
-                elif(my_dtct.count(",")>1 and (len(mydtct0)>7 or len(my_dtct.split(",")[2])>7)):
-                    first=float(my_dtct.split(",")[1])#27.0
-                    second=float(my_dtct.split(",")[3])#20.0
-                    mydtct2=my_dtct.split(",")[2].lstrip()
-                    if(first/order_len>=homozygotes  and int(first)>4 and len(my_dtct.split(",")[0])>7):
-                        myout=gene_rep+'\t'+mydtct0+'/'+mydtct0
-                        with open(out,"a+") as f2:
-                            f2.write(myout+"\n")
-                    elif(first/order_len>=major_allele and second/order_len>=heterozygotes and int(first)>2 and int(second)>2 ):
-                        myout=gene_rep+'\t'+mydtct0+'/'+mydtct2
-                        with open(out,"a+") as f2:
-                            f2.write(myout+"\n")                    
-def my_samtoools(gene,motif2,motif3,motif):
-    global samtools
-    geneout=gene+'.txt'
-    cmd=samtools+' tview -p '+gene+' -d T '+y+'>'+geneout
-    run_command(cmd)
-    GMSSR(geneout,motif2,motif3,motif)
-    os.remove(geneout)
+def run_command(cmd):
+    return_code = subprocess.call(cmd, shell=True)
 def callSSR(i):
     file=open(i,"r")
     lines = file.readlines()
     for line in lines:
-        tmp=line.split("\t")
-        gene=tmp[0]
-        motif=tmp[1]
-        motif2=tmp[3].split("/")[0]	 
-        motif3=tmp[3].split("/")[1]
-        my_samtoools(gene,motif2,motif3,motif)
+        tmp=line.strip().split("\t")
+        a=tmp[3]
+        chrname=tmp[0]+'-'+str(int(tmp[0].split(":")[1])+max(len(a.split('/')[0]),len(a.split('/')[1]))-1)
+        myout=chrname+'.txt'
+        cmd=bcftools+' view -r '+chrname+' '+y+' >'+myout
+        run_command(cmd)
+        ssr=tmp[1].split("(")[0]
+        motif=a.split("/")[0]
+        GMSSR(myout,tmp[0],ssr,motif)
+        os.remove(myout)
     file.close
+def GMSSR(geneout,name,ssr,motif):
+    flag=0
+    flag1=0
+    stra=""
+    a=int(geneout.split('-')[1].replace(".txt",""))-int(geneout.split('-')[0].split(':')[1])+1
+    a1=name.split(":")[1]
+    with open(geneout,"r") as f1:
+        for line in f1:
+            line=line.strip()
+            if line.startswith("#"):
+                continue
+            else:
+                tmp=line.split("\t")
+                if(tmp[7].split(';')[0]=='INDEL' and str(int(tmp[1])+1)==a1):
+                    if( int(tmp[7].split(';')[4].split('=')[1].split(',')[-1])>=DP and tmp[3].find(ssr)):
+                        if(tmp[9].split(':')[0]=='0/0' ):
+                            mydtct0=find_maxlen(tmp[3],ssr)
+                            if(mydtct0.count(ssr)):
+                                myout=name+'\t'+mydtct0+'/'+mydtct0
+                                with open(out,"a+") as f2:
+                                    f2.write(myout+"\n")
+                                return (1)
+                        elif(tmp[9].split(':')[0]=='0/1' ):
+                            mydtct0=find_maxlen(tmp[3],ssr)
+                            mydtct2=find_maxlen(tmp[4],ssr)
+                            if(mydtct0.count(ssr) and mydtct2.count(ssr)):
+                                myout=name+'\t'+mydtct0+'/'+mydtct2
+                                with open (out,"a+") as f2:
+                                    f2.write(myout+"\n")
+                                return (1)
+                        elif(tmp[9].split(':')[0]=='1/1' ):
+                            mydtct2=find_maxlen(tmp[4],ssr)
+                            if(mydtct2.count(ssr)):
+                                myout=name+'\t'+mydtct2+'/'+mydtct2
+                                with open (out,"a+") as f2:
+                                    f2.write(myout+"\n")
+                                return (1)
+                        elif(tmp[9].split(':')[0]=='1/2' ):
+                            mydtct0=find_maxlen(tmp[4].split(",")[0],ssr)
+                            mydtct2=find_maxlen(tmp[4].split(",")[1],ssr)
+                            if(mydtct0.count(ssr) and mydtct2.count(ssr)):
+                                myout=name+'\t'+mydtct0+'/'+mydtct2
+                                with open (out,"a+") as f2:
+                                    f2.write(myout+"\n")
+                                return (1)
+                else:
+                    if(tmp[9].split(':')[0]=='0/0' and int(tmp[9].split(':')[1])>=DP):
+                        flag=flag+1
+                        if(flag==a):
+                            myout=name+'\t'+motif+'/'+motif
+                            with open (out,"a+") as f2:
+                                f2.write(myout+"\n")
+                            return (1)
+
+    
 def main():
     df=pd.read_csv(x,sep='\t',header=None)
     len_df=len(df)
