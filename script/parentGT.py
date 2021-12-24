@@ -111,6 +111,7 @@ def GMSSR(geneout,ssr,motif):
         if(len(str2)>7 and str1!=str2):
             name=geneout.split('-')[0]
             myout=name+'\t'+ssr+'('+str(motif)+')'+'\t'+str(len(ssr*int(motif)))+'\t'+str1+'/'+str2+'\t'+'ab'
+        #    print(myout)
             with open(myfile,"a+") as f2:
                 f2.write(myout+"\n")
                     

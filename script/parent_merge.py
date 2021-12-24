@@ -45,7 +45,6 @@ def GMSSR(geneout,name,ssr,motif,motif2):
     flag=0
     flag1=0
     a=int(geneout.split('-')[1].replace(".txt",""))-int(geneout.split('-')[0].split(':')[1])+1
-    a1=name.split(":")[1]
     stra=""
     with open(geneout,"r") as f1:
         for line in f1:
@@ -54,7 +53,7 @@ def GMSSR(geneout,name,ssr,motif,motif2):
                 continue
             else:
                 tmp=line.split("\t")
-                if(tmp[7].split(';')[0]=='INDEL' and str(int(tmp[1])+1)==a1 ):
+                if(tmp[7].split(';')[0]=='INDEL'):
                     if( int(tmp[7].split(';')[4].split('=')[1].split(',')[-1])>=DP and tmp[3].find(ssr)):
                         if(tmp[9].split(':')[0]=='0/0' ):
                             mydtct0=find_maxlen(tmp[3],ssr)
