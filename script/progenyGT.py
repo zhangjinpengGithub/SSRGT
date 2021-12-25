@@ -6,9 +6,9 @@ import re
 import pandas as pd
 from multiprocessing import Pool
 from configparser import ConfigParser
-x = sys.argv[1] #Male_marker.txt
-y=  sys.argv[2] #progan1.vcf.gz
-out=sys.argv[3] #
+x = sys.argv[1] 
+y=  sys.argv[2] 
+out=sys.argv[3] 
 cfg = ConfigParser()
 cfg.read("parameters.ini")
 thread=cfg.getint("parameter","THREADS")
@@ -25,7 +25,6 @@ def find_maxlen(s,a):
         return str2
 
 def run_command(cmd):
-#    print(cmd)
     return_code = subprocess.call(cmd, shell=True)
 def callSSR(i):
     file=open(i,"r")
@@ -39,7 +38,6 @@ def callSSR(i):
         run_command(cmd)
         ssr=tmp[1].split("(")[0]
         motif=a.split("/")[0]
-#        motif2=tmp[3].split("/")[1]
         GMSSR(myout,tmp[0],ssr,motif)
         os.remove(myout)
     file.close
@@ -48,6 +46,7 @@ def GMSSR(geneout,name,ssr,motif):
     flag1=0
     stra=""
     a=int(geneout.split('-')[1].replace(".txt",""))-int(geneout.split('-')[0].split(':')[1])+1
+    a1=name.split(":")[1]
     with open(geneout,"r") as f1:
         for line in f1:
             line=line.strip()
@@ -55,7 +54,7 @@ def GMSSR(geneout,name,ssr,motif):
                 continue
             else:
                 tmp=line.split("\t")
-                if(tmp[7].split(';')[0]=='INDEL'):
+                if(tmp[7].split(';')[0]=='INDEL' and str(int(tmp[1])+1)==a1):
                     if( int(tmp[7].split(';')[4].split('=')[1].split(',')[-1])>=DP and tmp[3].find(ssr)):
                         if(tmp[9].split(':')[0]=='0/0' ):
                             mydtct0=find_maxlen(tmp[3],ssr)
@@ -95,37 +94,6 @@ def GMSSR(geneout,name,ssr,motif):
                             with open (out,"a+") as f2:
                                 f2.write(myout+"\n")
                             return (1)
-                    if(tmp[7].split(';')[0]!='INDEL' and int(tmp[9].split(':')[-1])>=DP ):
-                        if(tmp[9].count(':')==3):
-                            if(int(tmp[9].split(":")[3])<int(GQ)):
-                                continue
-                        if(tmp[9].split(":")[0]=='1/1'):
-                            flag1=flag1+1
-                        if(tmp[4]=="."):
-                            stra=stra+tmp[3]
-                        else:
-                            stra=stra+tmp[4]
-    str1=motif
-    mynum=int(geneout.split('-')[1].replace(".txt",""))-int(geneout.split('-')[0].split(':')[1])+1
-    if(len(stra)<mynum):
-        return (0)
-    else:
-        str2=find_maxlen(stra,ssr)
-        if(len(str2)>7 and str1!=str2):
-            if(flag1!=0):
-                name=geneout.split('-')[0]
-                myout=name+'\t'+str2+'/'+str2
-                with open (out,"a+") as f2:
-                    f2.write(myout+"\n")
-
-#                print(myout)
-            elif(flag1==0):
-                name=geneout.split('-')[0]
-                myout=name+'\t'+str1+'/'+str2
-                with open (out,"a+") as f2:
-                    f2.write(myout+"\n")
-#                print(myout)
-
 
     
 def main():
