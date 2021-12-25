@@ -16,7 +16,6 @@ bwa=cfg.get("folders","BWA_FOLD")
 samtools=cfg.get("folders","SAMTOOLS_FOLD")+'/samtools'
 bcftools=cfg.get("folders","BCFTOOLS_FOLD")+'/bcftools'
 thread=cfg.getint("parameter","THREADS")
-MAPQ=cfg.getint("parameter","MAPQ")
 GQ=cfg.get("parameter","GQ")
 pvalue=cfg.get("parameter","PVALUE")
 MISPCT=cfg.get("parameter","MISS_GENOTYPES")
@@ -83,41 +82,21 @@ def find_parent(reader1):
         run_command(cmd)
         cmd = bwa +  ' mem  -M  '+reader1+' '+male1+' '+male2+' > male.sam'
         run_command(cmd)
-        cmd=samtools+" sort  "+" -n -o male.sam.sorted male.sam"
+        cmd=samtools+' sort  '+' male.sam > male.bam'
         run_command(cmd)
-        cmd=samtools+" fixmate  "+" -m male.sam.sorted male.sorted.fixmate"
+        cmd=samtools+' index  male.bam'
         run_command(cmd)
-        cmd=samtools+" sort   "+" -o male.sorted.fixmate1 male.sorted.fixmate"
-        run_command(cmd)
-        cmd=samtools+" markdup  "+"  -r male.sorted.fixmate1 male.sorted.position.markdup"
-        run_command(cmd)
-        cmd=samtools+" view  "+" -b -S male.sorted.position.markdup -q "+str(MAPQ)+" >  male.bam"
-        run_command(cmd)
-        cmd=samtools+' sort   '+' male.bam >male.sort.dedup.bam'
-        run_command(cmd)
-        cmd=samtools+' index  male.sort.dedup.bam'
-        run_command(cmd)
-        cmd=bcftools +" mpileup  -Obuzv -a AD,INFO/AD -f "+reader1+" male.sort.dedup.bam  | "+bcftools +" call -m -f gq -Oz -o male.vcf.gz"
+        cmd=bcftools +" mpileup  -Obuzv -a AD,INFO/AD -f "+reader1+" male.bam  | "+bcftools +" call -m -f gq -Oz -o male.vcf.gz"
         run_command(cmd)
         cmd=bcftools+" index male.vcf.gz" 
         run_command(cmd)
         cmd = bwa +  ' mem  -M  '+reader1+' '+female1+' '+female2+' > female.sam'
         run_command(cmd)
-        cmd=samtools+" sort  "+" -n -o female.sam.sorted female.sam"
+        cmd=samtools+' sort   '+' female.sam >female.bam'
         run_command(cmd)
-        cmd=samtools+" fixmate  "+" -m female.sam.sorted female.sorted.fixmate"
+        cmd=samtools+' index  female.bam'
         run_command(cmd)
-        cmd=samtools+" sort   "+" -o female.sorted.fixmate1 female.sorted.fixmate"
-        run_command(cmd)
-        cmd=samtools+" markdup  "+"  -r female.sorted.fixmate1 female.sorted.position.markdup"
-        run_command(cmd)
-        cmd=samtools+" view  "+" -b -S female.sorted.position.markdup -q "+str(MAPQ)+" >  female.bam"
-        run_command(cmd)
-        cmd=samtools+' sort   '+' female.bam >female.sort.dedup.bam'
-        run_command(cmd)
-        cmd=samtools+' index  female.sort.dedup.bam'
-        run_command(cmd)
-        cmd=bcftools +" mpileup  -Obuzv -a AD,INFO/AD -f "+reader1+" female.sort.dedup.bam  | "+bcftools +" call -m -f gq -Oz -o female.vcf.gz"
+        cmd=bcftools +" mpileup  -Obuzv -a AD,INFO/AD -f "+reader1+" female.bam  | "+bcftools +" call -m -f gq -Oz -o female.vcf.gz"
         run_command(cmd)
         cmd=bcftools+" index female.vcf.gz"
         run_command(cmd)
@@ -177,36 +156,16 @@ def Mapping_progeny(i):
                         tmp = line.strip().split('\t')
                         cmd = bwa +  ' mem  -M  '+GENOME+' '+progenyfold+'/'+tmp[1]+' '+progenyfold+'/'+tmp[2]+' > '+tmp[0]+'.sam'
                         run_command(cmd)
-                        cmd=samtools+' sort  '+' -n -o '+tmp[0]+'.sam'+'.sorted '+tmp[0]+'.sam'
+                        cmd=samtools+' sort   '+tmp[0]+'.sam'+' >'+tmp[0]+'.sort.bam'
                         run_command(cmd)
-                        cmd=samtools+' fixmate  '+' -m '+tmp[0]+'.sam'+'.sorted '+tmp[0]+'.sorted.fixmate'
+                        cmd=samtools+' index  ' +tmp[0]+'.sort.bam'
                         run_command(cmd)
-                        cmd=samtools+' sort   '+' -o '+tmp[0]+'.sorted.fixmate1 '+tmp[0]+'.sorted.fixmate'
-                        run_command(cmd)
-                        cmd=samtools+' markdup  '+' -r '+tmp[0]+'.sorted.fixmate1 '+tmp[0]+'.sorted.position.markdup'
-                        run_command(cmd)
-                        cmd=samtools+' view  '+' -b -S -q '+str(MAPQ)+' '+tmp[0]+'.sorted.position.markdup'+' -o '+tmp[0]+'.bam'
-                        run_command(cmd)
-                        cmd=samtools+' sort   '+tmp[0]+'.bam'+' >'+tmp[0]+'.sort.dedup.bam'
-                        run_command(cmd)
-                        cmd=samtools+' index  ' +tmp[0]+'.sort.dedup.bam'
-                        run_command(cmd)
-                        cmd=bcftools +" mpileup  -Obuzv -a AD,INFO/AD -f "+GENOME+" "+tmp[0]+".sort.dedup.bam"+" | "+bcftools +" call -m -f gq -Oz -o "+tmp[0]+".vcf.gz"
+                        cmd=bcftools +" mpileup  -Obuzv -a AD,INFO/AD -f "+GENOME+" "+tmp[0]+".sort.bam"+" | "+bcftools +" call -m -f gq -Oz -o "+tmp[0]+".vcf.gz"
                         run_command(cmd)
                         cmd=bcftools+" index "+tmp[0]+".vcf.gz"
                         run_command(cmd)
                         tmpsam=tmp[0]+'.sam'
-                        tmpbam=tmp[0]+'.bam'
-                        tmpfix=tmp[0]+'.sam'+'.sorted'
-                        tmpfixsort=tmp[0]+'.sorted.fixmate'
-                        tmpfixsort1=tmp[0]+'.sorted.fixmate1'
-                        tmp1=tmp[0]+'.sorted.position.markdup'
-                        os.remove(tmp1)
                         os.remove(tmpsam)
-                        os.remove(tmpbam)
-                        os.remove(tmpfix)
-                        os.remove(tmpfixsort)
-                        os.remove(tmpfixsort1)
 
 def SSRGM(reader1):
 	with open(progenyID) as f:
