@@ -27,7 +27,7 @@ pip install pandas
 pip install scipy
 ```
 # Usage
-To run SSRGT, users should install two prerequisite packages: BWA and SAMtools.  Furthermore, an additional setting file parameter is required, namely `parameters.ini`. The parameter file contains three parts: folders, parameter and files. As the first part, ‘folders’ gives the software paths of the BWA and SAMtools. In addition, a script storage path and resequencing data path need to be provided. The second part ‘parameter’ consists of the specified mapping quality (MAPQ) threshold, the number of threads used for parallel computing, the depth of allele coverage, the minimum percentage frequency of a homozygotes, the minimum percentage frequency of a heterozygotes, the percent of the maximum missing genotypes at an SSR locus and the minimum p-value allowed for testing the segregation ratio of an SSR locus. Finally, the ‘data files’ includes reference genome file, the names of parents and progeny and the first read files and the second read files.  A typical parameter file looks as following:
+To run SSRGT, users should install two prerequisite packages: BWA and SAMtools.  Furthermore, an additional setting file parameter is required, namely `parameters.ini`. The parameter file contains three parts: folders, parameter and files. As the first part, ‘folders’ gives the software paths of the BWA and SAMtools. In addition, a script storage path and resequencing data path need to be provided. The second part ‘parameter’ consists of the number of threads used for parallel computing, the depth of allele coverage,the percent of the maximum missing genotypes at an SSR locus and the minimum p-value allowed for testing the segregation ratio of an SSR locus, the minimum GQ scores. Finally, the ‘data files’ includes reference genome file, the names of parents and progeny and the first read files and the second read files.  A typical parameter file looks as following:
 
         [folders]
         BWA_FOLD:~/bwa-0.7.15
@@ -35,16 +35,11 @@ To run SSRGT, users should install two prerequisite packages: BWA and SAMtools. 
         SSRGT_FOLD:/mnt/sda/tong/yuyingxuan/zjp/SSRGT
         RADDATA_FOLD:/mnt/sda/tong/yuyingxuan/zjp/exampledata
         [parameter]
-        MAPQ:30
         THREADS:30
-        DEPTH_OF_COVERAGE:5
-        PVALUE: 0.01
+        ALLELE_DEPTH:5
         MISS_GENOTYPES:0.3
-        FREQUENCY_OF_HOMOZYGOTES:0.7
-        FREQUENCY_OF_HETEROZYGOTES:0.35
-        #When the read frequency of the major allele is more than 0.7, this locus is described
-        #as homozygous. When the read frequencies of the major and minor alleles are both more than 0.35,
-        #this locus is treated as heterozygous.
+        PVALUE: 0.01
+        GQ:20
         [data files]
         REFERENCE_FILE:reference.fasta
         MALE:male.R1.fq male.R2.fq
