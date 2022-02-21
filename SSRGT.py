@@ -1379,7 +1379,7 @@ def filter(population):
                 with open(progenyID,'r') as f:
                         for line in f:
                                 flag1=flag1+1
-                                if(os.path.isfile(line.split('\t')[0]+'.sort.dedup.bam')==False ):
+                                if(os.path.isfile(line.split('\t')[0]+'.sort.bam')==False ):
                                        sys.exit(' Error!Please do not execute the --nomap command,this step cannot be skipped now.')
                 df1 = pd.read_table('Male_marker.txt',header=None)
                 df1=df1.values.tolist()
@@ -1422,7 +1422,7 @@ def main(args):
 			sys.exit(' Error!Please do not execute the --nocatalog command,this step cannot be skipped now.')
 		with open(progenyID,'r') as f:
 			for line in f:
-				if(os.path.isfile(line.split('\t')[0]+'.sort.dedup.bam')==False ):
+				if(os.path.isfile(line.split('\t')[0]+'.sort.bam')==False ):
 					sys.exit(' Error!Please do not execute the --nomap command,this step cannot be skipped now.')
 		print("This step is calling SSR genotypes for the progeny, please wait!")
 		SSRGM(GENOME)
