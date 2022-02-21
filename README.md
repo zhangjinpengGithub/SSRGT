@@ -28,7 +28,7 @@ pip install pandas
 pip install scipy
 ```
 # Usage
-To run SSRGT, users should install two prerequisite packages: BWA and SAMtools.  Furthermore, an additional setting file parameter is required, namely `parameters.ini`. The parameter file contains three parts: folders, parameter and files. As the first part, ‘folders’ gives the software paths of the BWA、 SAMtools and BCFtools. In addition, a script storage path and resequencing data path need to be provided. The second part ‘parameter’ consists of the number of threads used for parallel computing, the depth of allele coverage,the percent of the maximum missing genotypes at an SSR locus and the minimum p-value allowed for testing the segregation ratio of an SSR locus, the minimum GQ scores. Finally, the ‘data files’ includes reference genome file, the names of parents and progeny and the first read files and the second read files.  A typical parameter file looks as following:
+To run SSRGT, users should install two prerequisite packages: BWA and SAMtools.  Furthermore, an additional setting file parameter is required, namely `parameters.ini`. The parameter file contains three parts: folders, parameters and files. As the first part, ‘folders’ gives the software paths of the BWA、 SAMtools and BCFtools. In addition, a script storage path and resequencing data path need to be provided. The second part ‘parameter’ consists of the number of threads used for parallel computing, the depth of allele coverage,the percent of the maximum missing genotypes at an SSR locus and the minimum p-value allowed for testing the segregation ratio of an SSR locus, the minimum GQ scores. Finally, the ‘data files’ includes reference genome file, the names of parents and progeny and the first read files and the second read files.  A typical parameter file looks as following:
 
         [folders]
         BWA_FOLD:~/bwa-0.7.15
@@ -36,7 +36,7 @@ To run SSRGT, users should install two prerequisite packages: BWA and SAMtools. 
         BCFTOOLS_FOLD:/mnt/sda/tong/yuyingxuan/software/bcftools-1.9
         SSRGT_FOLD:/mnt/sda/tong/yuyingxuan/zjp/SSRGT
         RADDATA_FOLD:/mnt/sda/tong/yuyingxuan/zjp/exampledata
-        [parameter]
+        [parameters]
         THREADS:30
         ALLELE_DEPTH:5
         MISS_GENOTYPES:0.3
