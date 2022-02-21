@@ -11,11 +11,11 @@ x = sys.argv[1] #SRR.txt
 y=  sys.argv[2] #male.vcf.gz
 myfile=sys.argv[3] #male.01.txt
 cfg.read("parameters.ini")
-thread=cfg.getint("parameter","THREADS")
+thread=cfg.getint("parameters","THREADS")
 bcftools=cfg.get("folders","BCFTOOLS_FOLD")+'/bcftools'
-DP=cfg.get("parameter","ALLELE_DEPTH")
+DP=cfg.get("parameters","ALLELE_DEPTH")
 DP=int(DP)
-GQ=cfg.get("parameter","GQ")
+GQ=cfg.get("parameters","GQ")
 def ssrdict(i):
     chr_length = {}
     file = open(i, "r")

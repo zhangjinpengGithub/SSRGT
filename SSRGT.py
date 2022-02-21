@@ -15,17 +15,17 @@ cfg.read("parameters.ini")
 bwa=cfg.get("folders","BWA_FOLD")
 samtools=cfg.get("folders","SAMTOOLS_FOLD")+'/samtools'
 bcftools=cfg.get("folders","BCFTOOLS_FOLD")+'/bcftools'
-thread=cfg.getint("parameter","THREADS")
-GQ=cfg.get("parameter","GQ")
-pvalue=cfg.get("parameter","PVALUE")
-MISPCT=cfg.get("parameter","MISS_GENOTYPES")
+thread=cfg.getint("parameters","THREADS")
+GQ=cfg.get("parameters","GQ")
+pvalue=cfg.get("parameters","PVALUE")
+MISPCT=cfg.get("parameters","MISS_GENOTYPES")
 data_fold=cfg.get("folders","RADDATA_FOLD")
 GENOME=data_fold+'/'+cfg.get("data files","REFERENCE_FILE")
 progenyfold=data_fold
 parentfold=data_fold
 script=cfg.get("folders","SSRGT_FOLD")+'/script'
 SSRMMD=script+'/SSRMMD.pl'
-DP=cfg.get("parameter","ALLELE_DEPTH")
+DP=cfg.get("parameters","ALLELE_DEPTH")
 DP=int(DP)
 ###########################################################################################################
 Home=os.environ['HOME']

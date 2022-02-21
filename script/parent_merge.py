@@ -11,11 +11,11 @@ x = sys.argv[1] #female.01.txt
 y=  sys.argv[2] #male.vcf.gz
 out=sys.argv[3] #male.out
 cfg.read("parameters.ini")
-thread=cfg.getint("parameter","THREADS")
+thread=cfg.getint("parameters","THREADS")
 bcftools=cfg.get("folders","BCFTOOLS_FOLD")+'/bcftools'
-DP=cfg.get("parameter","ALLELE_DEPTH")
+DP=cfg.get("parameters","ALLELE_DEPTH")
 DP=int(DP)
-GQ=cfg.get("parameter","GQ")
+GQ=cfg.get("parameters","GQ")
 def run_command(cmd):
        # print(cmd)
         return_code = subprocess.call(cmd, shell=True)

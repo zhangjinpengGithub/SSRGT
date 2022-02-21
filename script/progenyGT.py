@@ -11,11 +11,11 @@ y=  sys.argv[2]
 out=sys.argv[3] 
 cfg = ConfigParser()
 cfg.read("parameters.ini")
-thread=cfg.getint("parameter","THREADS")
+thread=cfg.getint("parameters","THREADS")
 bcftools=cfg.get("folders","BCFTOOLS_FOLD")+'/bcftools'
-DP=cfg.get("parameter","ALLELE_DEPTH")
+DP=cfg.get("parameters","ALLELE_DEPTH")
 DP=int(DP)
-GQ=cfg.get("parameter","GQ")
+GQ=cfg.get("parameters","GQ")
 def find_maxlen(s,a):
         c=re.finditer(r'(%s)+'%(a),s)
         find_maxlist=[]
