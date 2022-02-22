@@ -168,6 +168,14 @@ def Mapping_progeny(i):
                         os.remove(tmpsam)
 
 def SSRGM(reader1):
+	df=pd.read_csv('Female_marker.txt','\t',header=None)
+	if (df.shape[1]>7):
+		df=df.iloc[:,0:7]
+		df.to_csv('Female_marker.txt', header=None, sep='\t', index=False)
+	df=pd.read_csv('Male_marker.txt','\t',header=None)
+	if (df.shape[1]>7):
+		df=df.iloc[:,0:7]
+		df.to_csv('Male_marker.txt', header=None, sep='\t', index=False)
 	with open(progenyID) as f:
 		for line in f:
 			tmp = line.strip().split('\t')
@@ -775,59 +783,56 @@ def write2map(x,y,z,hybrid_pchis,hybrid_map,abxaa_Fslinkmap,abxab_Fslinkmap):
         if (float(tmp[4])>float(pvalue)):
             get(tmp[0],y,z)
     file.close()
-    df1 = pd.read_csv(z,header=None,sep='\t')
-    list1=df1.values.tolist()
-    progany= pd.read_csv(progenyID,sep='\t')
-    progany=progany.values.tolist()
-    
-    for i in range(len(list1)):
-        list1[i][1]='abxaa'
-        list1[i][0]=str(list1[i][0])
-        list1[i][2]=''
-    df1=pd.DataFrame(list1)
-    df1=df1.sort_index(axis=1)
-    df1 = df1.fillna('--')
-
-    list2=df1.values.tolist()
-    for i in range(len(list2)):
-        myab=list2[i][3]
-        for j in range(len(progany)+1):
-            a=list2[i][7+j]
-            if (a!='--' and a.split("/")[0]!=a.split("/")[1] and (a.split("/")[0]==myab.split("/")[0] or a.split("/")[0]==myab.split("/")[1]) and (a.split("/")[1]==myab.split("/")[0] or a.split("/")[1]==myab.split("/")[1])):
-                list2[i][7+j]='ab'
-            elif(a!='--' and a.split("/")[0]==a.split("/")[1] and (a.split("/")[0] == list2[i][5].split("/")[0])):
-                list2[i][7+j]='aa'
-            else:
-                list2[i][7+j]='--'
-        list2[i][3]='(aa,ab)'
-    df1=pd.DataFrame(list2)
-    list3 = []
-    get_proganyID(list3,progenyID)
-    namelist=['SSR_Locus','Segregation_pattern','Phase','classification','4','5','6']
-    list3=namelist+list3
-    df1.columns=list3
-    df1=df1.drop(['4','5','6'],axis=1)
-    df1.to_csv(z,sep='\t',header=True,index=False)
-    
-    Fslinkmap = pd.read_csv(z,header=None,sep='\t')
-    list1=Fslinkmap.values.tolist()
-    for i in range(1,len(list1)):
-        list1[i][0]='*'+list1[i][0]
-        list1[i][1]='abxaa'
-    Fslinkmap=pd.DataFrame(list1)
-    df1=Fslinkmap.drop([2,3],axis=1)
-    df1.to_csv(abxaa_Fslinkmap,sep='\t',header=None,index=False)
-    if (y=='Male_marker.txt'):
-        cmd="sed 's/\t/  /g' Male_abxaa_Fslinkmap.txt >aaxab_Fslinkmap.txt"
-        run_command(cmd)
-        cmd="sed -i 's/abxaa/aaxab/g' aaxab_Fslinkmap.txt"
-        run_command(cmd)
-        cmd="sed -i 's/abxaa/aaxab/g' aaxab.joinmap.txt"
-        run_command(cmd)
-    elif(y=='Female_marker.txt'):
-        cmd="sed  's/\t/  /g' Female_abxaa_Fslinkmap.txt >abxaa_Fslinkmap.txt"
-        run_command(cmd)       
-    
+    if(os.path.isfile(z)==True):
+        df1 = pd.read_csv(z,header=None,sep='\t')
+        list1=df1.values.tolist()
+        progany= pd.read_csv(progenyID,sep='\t')
+        progany=progany.values.tolist()
+        for i in range(len(list1)):
+            list1[i][1]='abxaa'
+            list1[i][0]=str(list1[i][0])
+            list1[i][2]=''
+        df1=pd.DataFrame(list1)
+        df1=df1.sort_index(axis=1)
+        df1 = df1.fillna('--')
+        list2=df1.values.tolist()
+        for i in range(len(list2)):
+            myab=list2[i][3]
+            for j in range(len(progany)+1):
+                a=list2[i][7+j]
+                if (a!='--' and a.split("/")[0]!=a.split("/")[1] and (a.split("/")[0]==myab.split("/")[0] or a.split("/")[0]==myab.split("/")[1]) and (a.split("/")[1]==myab.split("/")[0] or a.split("/")[1]==myab.split("/")[1])):
+                    list2[i][7+j]='ab'
+                elif(a!='--' and a.split("/")[0]==a.split("/")[1] and (a.split("/")[0] == list2[i][5].split("/")[0])):
+                    list2[i][7+j]='aa'
+                else:
+                    list2[i][7+j]='--'
+            list2[i][3]='(aa,ab)'
+        df1=pd.DataFrame(list2)
+        list3 = []
+        get_proganyID(list3,progenyID)
+        namelist=['SSR_Locus','Segregation_pattern','Phase','classification','4','5','6']
+        list3=namelist+list3
+        df1.columns=list3
+        df1=df1.drop(['4','5','6'],axis=1)
+        df1.to_csv(z,sep='\t',header=True,index=False)
+        Fslinkmap = pd.read_csv(z,header=None,sep='\t')
+        list1=Fslinkmap.values.tolist()
+        for i in range(1,len(list1)):
+            list1[i][0]='*'+list1[i][0]
+            list1[i][1]='abxaa'
+        Fslinkmap=pd.DataFrame(list1)
+        df1=Fslinkmap.drop([2,3],axis=1)
+        df1.to_csv(abxaa_Fslinkmap,sep='\t',header=None,index=False)
+        if (y=='Male_marker.txt'):
+            cmd="sed 's/\t/  /g' Male_abxaa_Fslinkmap.txt >aaxab_Fslinkmap.txt"
+            run_command(cmd)
+            cmd="sed -i 's/abxaa/aaxab/g' aaxab_Fslinkmap.txt"
+            run_command(cmd)
+            cmd="sed -i 's/abxaa/aaxab/g' aaxab.joinmap.txt"
+            run_command(cmd)
+        elif(y=='Female_marker.txt'):
+            cmd="sed  's/\t/  /g' Female_abxaa_Fslinkmap.txt >abxaa_Fslinkmap.txt"
+            run_command(cmd)       
     if(os.path.isfile(hybrid_pchis)):
         # print("There were no data consistent with abxab segregation pattern")
 #    else:
@@ -1318,33 +1323,51 @@ def populationtype(p):
     os.mkdir('./WorkingDirectory')
     if (p == 'F2'):
         files =os.listdir()
+        count=0
         for file in files:
             if (file.startswith('abxab')):
-                cmd='mv abxab* ./WorkingDirectory'    
-                run_command(cmd)
-                cmd='rm a* '
+                cmd='mv a* ./WorkingDirectory'    
                 run_command(cmd)
                 cmd='mv ./WorkingDirectory/abxab* ./'
                 run_command(cmd)
-            else:
-                print("No SSR genotypes are found that fit Mendelian segregation ratios for abxab.")
                 break
+            else:
+                conut=count+1
+                if (conut==len(files) or ('abxab.txt' not in files) ):
+                    print("No SSR genotypes are found that fit Mendelian segregation ratios for abxab.")
+                    break
     elif(p.split(':')[0] == 'BC'):
         if(p=='BC:female' or p=='BC:male'):
             if (p.split(':')[1] == 'male'):
-                cmd='mv abxaa* ./WorkingDirectory'
-                run_command(cmd)
-                cmd='rm a* '
-                run_command(cmd)
-                cmd='mv ./WorkingDirectory/abxaa* ./'
-                run_command(cmd)
+                files =os.listdir()
+                conut=0 
+                for file in files:
+                    if (file.startswith('abxaa')):
+                        cmd='mv a* ./WorkingDirectory'
+                        run_command(cmd)
+                        cmd='mv ./WorkingDirectory/abxaa* ./'
+                        run_command(cmd)
+                        break
+                    else:
+                        conut=conut+1
+                        if(conut==len(files) or ('abxaa.txt' not in files)):
+                            print("No SSR genotypes are found that fit Mendelian segregation ratios for abxaa.")
+                            break
             elif(p.split(':')[1] == 'female'):
-                cmd='mv aaxab* ./WorkingDirectory'
-                run_command(cmd)
-                cmd='rm a* '
-                run_command(cmd)
-                cmd='mv ./WorkingDirectory/aaxab* ./'
-                run_command(cmd)
+                files =os.listdir()
+                count=0
+                for file in files:
+                    if (file.startswith('aaxab')):
+                        cmd='mv a* ./WorkingDirectory'
+                        run_command(cmd)
+                        cmd='mv ./WorkingDirectory/aaxab* ./'
+                        run_command(cmd)
+                        break
+                    else:
+                        count=count+1
+                        if(count==len(files) or ('aaxab.txt' not in files)):
+                            print("No SSR genotypes are found that fit Mendelian segregation ratios for aaxab.")
+                            break
         else:
             sys.exit(' Error!Please input BC:female or BC:male')
     cmd='mv  *marker*  *map*  ./WorkingDirectory'
@@ -1368,6 +1391,15 @@ def populationtype(p):
         run_command(cmd)
     cmd='rm -rf ./WorkingDirectory'
     run_command(cmd)
+    if(p=='CP'):
+        files=os.listdir()
+        if('abxaa.txt' not in files):
+            print("No SSR genotypes are found that fit Mendelian segregation ratios for abxaa.")
+        if('aaxab.txt' not in files):
+            print("No SSR genotypes are found that fit Mendelian segregation ratios for aaxab.")
+        if('abxab.txt' not in files):
+            print("No SSR genotypes are found that fit Mendelian segregation ratios for abxab.")
+
 
 def filter(population):
         if (population == 'CP' or population == 'F2'or population == 'BC:female' or  population == 'BC:male'):
