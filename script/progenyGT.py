@@ -86,6 +86,8 @@ def GMSSR(geneout,name,ssr,motif):
                                 with open (out,"a+") as f2:
                                     f2.write(myout+"\n")
                                 return (1)
+                elif(tmp[7].split(';')[0]=='INDEL' and int(tmp[1])+1<int(a1) ):
+                    return (0)
                 else:
                     if(tmp[9].split(':')[0]=='0/0' and int(tmp[9].split(':')[1])>=DP):
                         flag=flag+1
@@ -94,7 +96,7 @@ def GMSSR(geneout,name,ssr,motif):
                             with open (out,"a+") as f2:
                                 f2.write(myout+"\n")
                             return (1)
-
+     
     
 def main():
     df=pd.read_csv(x,sep='\t',header=None)

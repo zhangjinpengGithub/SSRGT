@@ -1389,6 +1389,11 @@ def populationtype(p):
     if (re.findall("fq",file)):
         cmd='mv ./WorkingDirectory/*fq  ./'
         run_command(cmd)
+    if (re.findall("vcf.gz",file)):
+        cmd='mv ./WorkingDirectory/*bam   ./'
+        run_command(cmd)
+        cmd='mv ./WorkingDirectory/*vcf*   ./'
+        run_command(cmd)
     cmd='rm -rf ./WorkingDirectory'
     run_command(cmd)
     if(p=='CP'):
