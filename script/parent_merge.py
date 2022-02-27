@@ -92,10 +92,19 @@ def GMSSR(geneout,name,ssr,motif,motif2):
                             mydtct0=find_maxlen(tmp[4].split(",")[0],ssr)
                             mydtct2=find_maxlen(tmp[4].split(",")[1],ssr)
                             if(mydtct0==motif2 or mydtct2==motif2):
-                                myout=name+'\t'+mydtct0+'/'+mydtct2+'\t'+'ac'
-                                with open (out,"a+") as f2:
-                                    f2.write(myout+"\n")
-                                return (1)
+                                if((mydtct0==motif2 and mydtct2!=motif) or (mydtct2==motif2 and mydtct0!=motif)):
+                                    #+++
+
+                                    myout=name+'\t'+mydtct0+'/'+mydtct2+'\t'+'ac'
+                                    with open (out,"a+") as f2:
+                                        f2.write(myout+"\n")
+                                    return (1)
+                                elif((mydtct0==motif2 and mydtct2==motif) or (mydtct2==motif2 and mydtct0==motif)):
+                                    myout=name+'\t'+mydtct0+'/'+mydtct2+'\t'+'ab'
+                                    with open (out,"a+") as f2:
+                                        f2.write(myout+"\n")
+                                    return (1)
+
                             elif((mydtct0!=motif2 or mydtct2!=motif2) and mydtct0.count(ssr) and mydtct2.count(ssr)):
                                 myout=name+'\t'+mydtct0+'/'+mydtct2+'\t'+'cd'
                                 with open (out,"a+") as f2:
