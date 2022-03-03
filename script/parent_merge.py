@@ -186,52 +186,6 @@ def GMSSR(geneout,name,ssr,motif,motif2):
                 elif(tmp[7].split(';')[0]!='INDEL' and tmp[9].split(':')[0]=='1/1' ):
                     return(0)
 
-
-
-    
-                                    
-                    
-'''
-                else:
-                    if(tmp[9].split(':')[0]=='0/0' and int(tmp[9].split(':')[1])>=DP):
-                        flag=flag+1
-                        if(flag==a):
-                            myout=name+'\t'+motif+'/'+motif+'\t'+'aa'
-                            with open (out,"a+") as f2:
-                                f2.write(myout+"\n")
-                                return (1)
-                    if(tmp[7].split(';')[0]!='INDEL' and int(tmp[9].split(':')[-1])>=DP ):
-                        if(tmp[9].count(':')==3):
-                            if(int(tmp[9].split(":")[3])<int(GQ)):
-                                continue
-                        if(tmp[9].split(":")[0]=='1/1'):
-                            flag1=flag1+1                 
-                        if(tmp[4]=="."):
-                            stra=stra+tmp[3]
-                        else:
-                            stra=stra+tmp[4]
-    str1=motif
-    mynum=int(geneout.split('-')[1].replace(".txt",""))-int(geneout.split('-')[0].split(':')[1])+1
-    if(len(stra)<mynum):
-        return (0)
-    else:
-        str2=find_maxlen(stra,ssr)
-        if(len(str2)>5 and str1!=str2):
-            if(motif2==str2 and flag1!=0):
-                name=geneout.split('-')[0]
-                myout=name+'\t'+str2+'/'+str2+'\t'+'aa'
-                with open (out,"a+") as f2:
-                    f2.write(myout+"\n")
-     #           print(myout)
-            elif(motif2==str2 and flag1==0):
-                name=geneout.split('-')[0]
-                myout=name+'\t'+str1+'/'+str2+'\t'+'ab'
-     #           print(myout)
-                with open (out,"a+") as f2:
-                    f2.write(myout+"\n")
-'''
-            
-
 def main():
     df=pd.read_csv(x,sep='\t',header=None)
     len_df=len(df)

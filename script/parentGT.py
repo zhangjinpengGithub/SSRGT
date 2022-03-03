@@ -82,7 +82,6 @@ def GMSSR(geneout,ssr,motif):
                                 motif=mydict[name].split("_")[1]  #5
                                 str1=ssr*int(motif)
                                 if(len(tmp[3])<len(tmp[4])): #gain
-                            #        str2=tmp[4]
                                     for line2 in f1:
                                         line2=line2.strip()
                                         if line2.startswith("#"):
@@ -100,7 +99,6 @@ def GMSSR(geneout,ssr,motif):
                                             f2.write(myout+"\n")
                                             return (1)
                                 elif(len(tmp[3])>len(tmp[4])): #loss
-                             #       str2=tmp[4]
                                     num=len(tmp[3])-len(tmp[4])+1
                                     for line2 in f1:
                                         line2=line2.strip()
@@ -114,8 +112,6 @@ def GMSSR(geneout,ssr,motif):
                                                 str2=str2+tmp2[4]
                                             if(num!=0):
                                                 num=num-1
-                            #        str2=str2[num:]
-                            #        str2=tmp[4]+str2
                                     str2=find_maxlen(str2,ssr)
                                     if (str1!=str2 and str2!="" and str2!="0"):
                                         myout=name+'\t'+ssr+'('+str(motif)+')'+'\t'+str(len(str1))+'\t'+str1+'/'+str2+'\t'+'ab'
@@ -225,27 +221,6 @@ def GMSSR(geneout,ssr,motif):
                         return (0)  
                     elif(tmp[7].split(';')[0]=='INDEL' and tmp[9].split(":")[0]=='1/1'):
                         return (0)
-'''
-                else:
-                    if( tmp[7].split(';')[0]!='INDEL' and int(tmp[9].split(':')[-1])>=DP and tmp[9].split(":")[0]!='1/1'): #tmp[9].split(":")[0]=='0/0' and1/2
-                        if(tmp[4]=="."):
-                            a=a+tmp[3]
-                        else:
-                            a=a+tmp[4]
-
-    str1=ssr*int(motif)
-    mynum=int(geneout.split('-')[1].replace(".txt",""))-int(geneout.split('-')[0].split(':')[1])+1
-    if(len(a)<=mynum):
-        return (0)
-    str2=find_maxlen(a,ssr)
-    if(len(str2)>5 and str1!=str2):
-        name=geneout.split('-')[0]
-        print(name)
-        myout=name+'\t'+ssr+'('+str(motif)+')'+'\t'+str(len(ssr*int(motif)))+'\t'+str1+'/'+str2+'\t'+'ab'
-        with open(myfile,"a+") as f2:
-            f2.write(myout+"\n")
-'''
-
 
 def main():
     file = open(myfile, "w")
