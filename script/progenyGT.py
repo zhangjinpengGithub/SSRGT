@@ -111,6 +111,9 @@ def GMSSR(geneout,name,ssr,motif):
                                 if(tmp2[7].split(';')[0]=='INDEL' and (tmp2[9].split(':')[0]=='0/1' ) and int(tmp2[1])+1<int(a1)):
                                     if(len(tmp2[3])>len(tmp2[4])):
                                         tmpstr=tmp2[3]
+                    if(len(tmplist)<3):
+                        os.remove(myout)
+                        return (0)
                     num=int(tmplist[1])-int(tmplist[0])
                     if(num>0 and len(tmpstr)>num):
                             tmpstr=tmpstr[num:]
