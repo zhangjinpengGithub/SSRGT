@@ -106,13 +106,13 @@ def get_proganyID(list1,proganyID):
                         a=line.strip().split("\t")
                         list1.append(a[0])
 def callparent2():
-        cmd='python   '+script+'/parentGT.py '+' SSR.txt male.vcf.gz male.01.txt'
+        cmd='python   '+script+'/parentGT.py '+' SSR.txt male.vcf.gz male.01.txt '+GENOME
         run_command(cmd)
-        cmd='python   '+script+'/parentGT.py '+' SSR.txt female.vcf.gz female.01.txt'
+        cmd='python   '+script+'/parentGT.py '+' SSR.txt female.vcf.gz female.01.txt '+GENOME 
         run_command(cmd)
-        cmd='python   '+script+'/parent_merge.py '+' female.01.txt male.vcf.gz male.out'
+        cmd='python   '+script+'/parent_merge.py '+' female.01.txt male.vcf.gz male.out '+GENOME
         run_command(cmd)
-        cmd='python   '+script+'/parent_merge.py '+' male.01.txt female.vcf.gz female.out'
+        cmd='python   '+script+'/parent_merge.py '+' male.01.txt female.vcf.gz female.out '+GENOME
         run_command(cmd)
         cmd='less -S female.out |sort|uniq > '+'female.sort.out'
         run_command(cmd)
@@ -179,11 +179,11 @@ def SSRGM(reader1):
 	with open(progenyID) as f:
 		for line in f:
 			tmp = line.strip().split('\t')
-			cmd='python '+script+'/progenyGT.py '+'Female_marker.txt '+tmp[0]+'.vcf.gz '+tmp[0]+'.out'
+			cmd='python '+script+'/progenyGT.py '+'Female_marker.txt '+tmp[0]+'.vcf.gz '+tmp[0]+'.out '+GENOME
 			run_command(cmd)
 			tmout=tmp[0]+'.out'
 			os.remove(tmout)
-			cmd='python '+script+'/progenyGT.py '+'Male_marker.txt '+tmp[0]+'.vcf.gz '+tmp[0]+'.out2'
+			cmd='python '+script+'/progenyGT.py '+'Male_marker.txt '+tmp[0]+'.vcf.gz '+tmp[0]+'.out2 '+GENOME
 			run_command(cmd)
 			tmout=tmp[0]+'.out2'
 			os.remove(tmout)
@@ -1384,6 +1384,8 @@ def populationtype(p):
             cmd='mv female* male* ./WorkingDirectory'
             run_command(cmd)
             break
+    if ("log" in files):
+        os.remove("log")
     files =os.listdir('./WorkingDirectory')
     file="".join(files)
     if (re.findall("fq",file)):
