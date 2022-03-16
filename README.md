@@ -119,7 +119,7 @@ Additionally, users need to install python modules [pandas](https://github.com/p
     optional arguments:
       -h, --help            show this help message and exit
       -mo MOTIF, --motif MOTIF
-                            set the threshold of motif, default: 1=11,2=5,3=4,4=4,5=4,6=4
+                            set the threshold of motif, default: 1=10,2=5,3=4,4=4,5=4,6=4
                             left  of equal : length of motif
                             right of equal : the minimum number of repeat
       -p POPULATION, --population POPULATION
