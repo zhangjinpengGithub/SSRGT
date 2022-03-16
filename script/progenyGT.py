@@ -18,6 +18,7 @@ DP=cfg.get("parameters","ALLELE_DEPTH")
 DP=int(DP)
 GQ=cfg.get("parameters","GQ")
 def find_maxlen(s,a):
+        s=s.upper()
         c=re.finditer(r'(%s)+'%(a),s)
         find_maxlist=[]
         for i in c:

@@ -51,6 +51,7 @@ def callSSR(i):
                 GMSSR(myout,ssr,motif)
                 os.remove(myout)
 def find_maxlen(s,a):
+        s=s.upper()
         c=re.finditer(r'(%s)+'%(a),s)
         find_maxlist=[]
         for i in c:
@@ -74,7 +75,7 @@ def GMSSR(geneout,ssr,motif):
             else:
                 tmp=line.split("\t")
                 if(tmp[7].split(';')[0]=='INDEL' and tmp[1]==str(int(geneout.split("-")[0].split(":")[1])-1) and (tmp[9].split(":")[0]=='0/1' or tmp[9].split(":")[0]=='1/2')):
-                    if (tmp[9].split(":")[0]=='0/1' ):
+                    if (tmp[9].split(":")[0]=='0/1' and int(tmp[7].split(';')[3].split('=')[1])>=DP): #
                         if(int(tmp[9].split(":")[-1])>=int(GQ)):
                             name=tmp[0]+":"+str(int(tmp[1])+1)
                             if (name in mydict.keys()):
@@ -88,9 +89,9 @@ def GMSSR(geneout,ssr,motif):
                                             continue
                                         else:
                                             tmp2=line2.split("\t")
-                                            if(tmp2[4]=="."):
+                                            if(tmp2[4]=="." ):
                                                 str2=str2+tmp2[3]
-                                            else:
+                                            elif(tmp2[4]!="."):
                                                 str2=str2+tmp2[4]
                                     str2=find_maxlen(str2,ssr)
                                     if (str1!=str2 and str2!="" and str2!="0"):
@@ -135,7 +136,6 @@ def GMSSR(geneout,ssr,motif):
                                     if(int(tmp3[9].split(":")[-1])>=int(GQ)):
                                         name=tmp3[0]+":"+str(int(tmp3[1])+1)
                                         if (name in mydict.keys() and tmp3[9].split(":")[0]=='1/2'): ###tmp3
-                                            #####
                                             ssr=mydict[name].split("_")[0]
                                             motif=mydict[name].split("_")[1]
                                             str1=find_maxlen(tmp3[4].split(",")[0],ssr)
@@ -173,13 +173,13 @@ def GMSSR(geneout,ssr,motif):
                                 else:
                                     str2=str2+tmp2[4]
                                     str2=str2[num2:]
-                                    str2=tmp[4]+str2
-                                    str2=find_maxlen(str2,ssr)
-                                    if (str1!=str2 and str2!=""  and str2!="0"):
-                                        myout=name+'\t'+ssr+'('+str(motif)+')'+'\t'+str(len(str1))+'\t'+str1+'/'+str2+'\t'+'ab'
-                                        with open(myfile,"a+") as f2:
-                                            f2.write(myout+"\n")
-                                            return (1)
+                        str2=tmp[4]+str2
+                        str2=find_maxlen(str2,ssr)
+                        if (str1!=str2 and str2!=""  and str2!="0"):
+                            myout=name+'\t'+ssr+'('+str(motif)+')'+'\t'+str(len(str1))+'\t'+str1+'/'+str2+'\t'+'ab'
+                            with open(myfile,"a+") as f2:
+                                f2.write(myout+"\n")
+                                return (1)
                 else:
                     str1=ssr*int(motif)
                     if( tmp[7].split(';')[0]!='INDEL' and int(tmp[9].split(':')[-1])>=DP and tmp[9].split(":")[0]=='0/0'):

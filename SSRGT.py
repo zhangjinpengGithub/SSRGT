@@ -1407,6 +1407,15 @@ def populationtype(p):
         if('abxab.txt' not in files):
             print("No SSR genotypes are found that fit Mendelian segregation ratios for abxab.")
 
+def fliter1(x):
+    df=pd.read_csv(x,'\t',header=None)
+    dflist=df.shape[1]
+    if (dflist >7):
+        flag=dflist-7-int((dflist-7)*0.7)
+        df=df.dropna(thresh=flag)
+    df.to_csv(x, header=None, sep='\t', index=False)
+
+
 
 def filter(population):
         if (population == 'CP' or population == 'F2'or population == 'BC:female' or  population == 'BC:male'):
@@ -1431,6 +1440,8 @@ def filter(population):
                                 cmd='rm a* '
                                 run_command(cmd)
                                 break
+                fliter1('Male_marker.txt')
+                fliter1('Female_marker.txt')
                 pchisq('Male_marker.out','Male_pure_pchis','Male_hybrid_pchis')
                 pchisq('Female_marker.out','Female_pure_pchis','Female_hybrid_pchis')
                 ALL_type('Male_marker.txt')
@@ -1491,8 +1502,8 @@ Usage: python SSRGT.py  [Options]
 ''')
 	parser.add_argument(
 		'-mo', '--motif',
-		default="1=11,2=5,3=4,4=4,5=4,6=4",
-		help="set the threshold of motif, default: 1=11,2=5,3=4,4=4,5=4,6=4 \nleft  of equal : length of motif \nright of equal : the minimum number of repeat")
+		default="1=10,2=5,3=4,4=4,5=4,6=4",
+		help="set the threshold of motif, default: 1=10,2=5,3=4,4=4,5=4,6=4 \nleft  of equal : length of motif \nright of equal : the minimum number of repeat")
 	parser.add_argument(
 		'-p', '--population',
 		default='CP',

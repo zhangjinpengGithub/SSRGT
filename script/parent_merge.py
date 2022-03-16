@@ -36,6 +36,7 @@ def callSSR(i):
             GMSSR(myout,tmp[0],ssr,motif,motif2) 
             os.remove(myout)
 def find_maxlen(s,a):
+        s=s.upper()
         c=re.finditer(r'(%s)+'%(a),s)
         find_maxlist=[]
         for i in c:
@@ -60,7 +61,7 @@ def GMSSR(geneout,name,ssr,motif,motif2):
             else:
                 tmp=line.split("\t")
                 if(tmp[7].split(';')[0]=='INDEL' and str(int(tmp[1])+1)==a1 ):
-                    if( int(tmp[7].split(';')[4].split('=')[1].split(',')[-1])>=DP and tmp[3].find(ssr)):
+                    if( int(tmp[7].split(';')[3].split('=')[1])>=DP and tmp[3].find(ssr)):
                         if(tmp[9].split(':')[0]=='0/0' ):
                             mydtct0=find_maxlen(tmp[3],ssr)
                             if(mydtct0==motif):
