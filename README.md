@@ -39,7 +39,7 @@ To run SSRGT, users should install two prerequisite packages: BWA and SAMtools. 
         [parameters]
         THREADS:30
         ALLELE_DEPTH:5
-        MISS_GENOTYPES:0.3
+        MISS_GENOTYPES:0.2
         PVALUE: 0.01
         GQ:20
         [data files]
