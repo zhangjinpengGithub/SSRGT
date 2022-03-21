@@ -168,11 +168,11 @@ def Mapping_progeny(i):
                         os.remove(tmpsam)
 
 def SSRGM(reader1):
-	df=pd.read_csv('Female_marker.txt','\t',header=None)
+	df=pd.read_csv('Female_marker.txt',sep='\t',header=None)
 	if (df.shape[1]>7):
 		df=df.iloc[:,0:7]
 		df.to_csv('Female_marker.txt', header=None, sep='\t', index=False)
-	df=pd.read_csv('Male_marker.txt','\t',header=None)
+	df=pd.read_csv('Male_marker.txt',sep='\t',header=None)
 	if (df.shape[1]>7):
 		df=df.iloc[:,0:7]
 		df.to_csv('Male_marker.txt', header=None, sep='\t', index=False)
@@ -1408,7 +1408,7 @@ def populationtype(p):
             print("No SSR genotypes are found that fit Mendelian segregation ratios for abxab.")
 
 def fliter1(x):
-    df=pd.read_csv(x,'\t',header=None)
+    df=pd.read_csv(x,sep='\t',header=None)
     dflist=df.shape[1]
     if (dflist >7):
         flag=dflist-7-int((dflist-7)*0.7)
