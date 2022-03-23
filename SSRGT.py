@@ -1407,14 +1407,49 @@ def populationtype(p):
         if('abxab.txt' not in files):
             print("No SSR genotypes are found that fit Mendelian segregation ratios for abxab.")
 
-def fliter1(x):
+def fliter1(x,y):
+    newx=x+".out"
+    newy=y+".out"
+    file = open('female.abab', "w")
+    file.close()
     df=pd.read_csv(x,sep='\t',header=None)
     dflist=df.shape[1]
     if (dflist >7):
-        flag=dflist-7-int((dflist-7)*0.7)
+        flag=dflist-7-int((dflist-7)*0.8)
         df=df.dropna(thresh=flag)
     df.to_csv(x, header=None, sep='\t', index=False)
-
+    df=pd.read_csv(y,sep='\t',header=None)
+    dflist=df.shape[1]
+    if (dflist >7):
+        flag=dflist-7-int((dflist-7)*0.8)
+        df=df.dropna(thresh=flag)
+    df.to_csv(y, header=None, sep='\t', index=False)
+    with open (x) as f:
+        for line in f:
+            line=line.strip()
+            tmp=line.split("\t")
+            if(tmp[4]=="ab" and tmp[6]=="ab"):
+                with open ('female.abab',"a+") as f2:
+                    f2.write(line+"\n")
+            else:
+                with open (newx,"a+") as f2:
+                    f2.write(line+"\n")
+    with open (y) as f:
+        for line in f:
+            line=line.strip()
+            tmp=line.split("\t")
+            if(tmp[4]=="ab" and tmp[6]=="ab"):
+                with open ('female.abab',"a+") as f2:
+                    f2.write(line+"\n")
+            else:
+                with open (newy,"a+") as f2:
+                    f2.write(line+"\n")
+    cmd="cat female.abab |sort |uniq -d >female.abab.out"
+    run_command(cmd)
+    cmd="cat Male_marker.txt.out female.abab.out >Male_marker.txt"
+    run_command(cmd)
+    cmd="cat  Female_marker.txt.out female.abab.out >Female_marker.txt"
+    run_command(cmd)
 
 
 def filter(population):
@@ -1440,8 +1475,7 @@ def filter(population):
                                 cmd='rm a* '
                                 run_command(cmd)
                                 break
-                fliter1('Male_marker.txt')
-                fliter1('Female_marker.txt')
+                fliter1('Male_marker.txt','Female_marker.txt')
                 pchisq('Male_marker.out','Male_pure_pchis','Male_hybrid_pchis')
                 pchisq('Female_marker.out','Female_pure_pchis','Female_hybrid_pchis')
                 ALL_type('Male_marker.txt')
