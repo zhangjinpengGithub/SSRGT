@@ -241,6 +241,7 @@ def main():
     df2 = pd.read_csv(out,header=None,sep='\t')    
     df = pd.merge(df1,df2,on=0,how="left")
     df=df.drop_duplicates()
+    df=df.fillna("--")
     df.to_csv(x,sep='\t',header=False,index=False)
     for a in order:
         os.remove(a)
